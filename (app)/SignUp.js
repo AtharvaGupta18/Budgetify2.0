@@ -1,33 +1,33 @@
 import * as React from 'react';
-import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
-import { View, TextInput, Text, TouchableOpacity } from 'react-native';
+import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
+import { View, TextInput, Text, TouchableOpacity, Alert } from 'react-native';
 
-export default class Authentication extends React.Component {
+export default class SignUp extends React.Component {
     constructor(props) {
         super(props);
         this.state = { email: null, password: null };
     }
 
-    async signIn(email, password) {
+    signUp(email, password) {
         const auth = getAuth();
-        return await signInWithEmailAndPassword(auth, email, password)
+        return createUserWithEmailAndPassword(auth, email, password)
             .then((userCredential) => {
                 // Signed in 
                 const user = userCredential.user;
-                // console.log(user);
-                this.props.navigation.replace('App');
-                Alert.alert("Login successful");
+                console.log(user)
+                Alert.alert("User created successfully \n Please login to continue");
+                this.props.navigation.replace('Authentication');
             }).catch((error) => {
                 const errorCode = error.code;
                 const errorMessage = error.message;
-                Alert.alert("Login failed \n Please check your email and password");
+                console.log(errorCode);
+                console.log(errorMessage);
             });
     }
 
     render() {
         return (
             <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-
                 <TextInput
                     placeholder="Email"
                     value={this.state.email}
@@ -41,17 +41,8 @@ export default class Authentication extends React.Component {
                     secureTextEntry
                     keyboardType='password'
                 />
-
-                <TouchableOpacity onPress={() => this.signIn(this.state.email, this.state.password)}>
-                    <Text>Login</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity onPress={() => this.props.navigation.navigate('SignUp')}>
-                    <Text>Sign Up</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity onPress={() => this.props.navigation.navigate('ForgotPassword')}>
-                    <Text>Forgot Password?</Text>
+                <TouchableOpacity onPress={() => this.signUp(this.state.email, this.state.password)}>
+                    <Text>Create User</Text>
                 </TouchableOpacity>
             </View>
         );
