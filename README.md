@@ -130,11 +130,4 @@ If you like Budgetify:
 📢 Share with others  
 
 ---
-
-<p align="center">
-
-# 💸 Budgetify
-
-### Spend Smart • Save More • Stay Aware
-
-</p>
+## The Budgetify Team ❤️❤️
