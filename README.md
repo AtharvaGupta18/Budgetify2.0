@@ -1,7 +1,7 @@
-# 💸 Budgetify
-<p align="center">
-  <img src="assets/logo.png" width="100" height="100"/>
-</p>
+<h1 align="left">
+  <img src="assets/logo.png" width="100" align="left"/>
+  Budgetify
+</h1>
 ### Smart Money Management & Expense Tracking App  
 
 <p align="center">
