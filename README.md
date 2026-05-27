@@ -9,7 +9,8 @@
   <img src="https://img.shields.io/badge/Version-1.0-success?style=for-the-badge"/>
   <img src="https://img.shields.io/badge/Platform-Mobile-blue?style=for-the-badge"/>
   <img src="https://img.shields.io/badge/Backend-Firebase-orange?style=for-the-badge"/>
-  <img src="https://img.shields.io/badge/Status-Under-Development-yellow?style=for-the-badge"/>
+  <img src="[https://img.shields.io/badge/Status-Under-Development-yellow?style=for-the-badge](https://img.shields.io/badge/Under%20Development?color=yellow
+)"/>
 </p>
 
 ---
