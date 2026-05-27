@@ -56,18 +56,6 @@ Budgetify makes managing money simple, organized, and consistent.
 
 ---
 
-# 🖼 App Screenshots
-
-<p align="center">
-
-<img src="assets/home.png" width="260"/>
-<img src="assets/add-expense.png" width="260"/>
-<img src="assets/profile.png" width="260"/>
-
-</p>
-
----
-
 # ⚙ Installation
 
 ```bash
