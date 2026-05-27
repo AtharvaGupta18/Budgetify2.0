@@ -1,5 +1,5 @@
 <h1 align="left">
-  <img src="assets/logo.png" width="100" align="left"/>
+  <img src="assets/logo.png" width="100" marginBottom="20" align="left"/>
   Budgetify
 </h1>
 
