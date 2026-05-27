@@ -3,6 +3,7 @@
   Budgetify
 </h1>
 
+--
 ### Smart Money Management & Expense Tracking App  
 
 <p align="center">
