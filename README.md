@@ -27,10 +27,8 @@ Budgetify makes managing money simple, organized, and consistent.
 ## 🎬 Preview
 
 <p align="center">
-  <img src="assets/demo.gif" width="900"/>
+  <img src="assets/demo.png" width="900"/>
 </p>
-
-> Replace `assets/demo.gif` with your actual app demo recording.
 
 ---
 
@@ -73,13 +71,13 @@ Budgetify makes managing money simple, organized, and consistent.
 # ⚙ Installation
 
 ```bash
-git clone https://github.com/yourusername/budgetify.git
+git clone https://github.com/AtharvaGupta18/Budgetify2.0.git
 
-cd budgetify
+cd Budgetify2.0
 
-npm install
+npx expo install
 
-npm start
+npx expo start
 ```
 
 ---
