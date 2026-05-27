@@ -3,7 +3,7 @@
   Budgetify
 </h1>
 
-<h3 align="center"><i>### Smart Money Management & Expense Tracking App </i></h3>
+<h3 align="center"><i> Smart Money Management & Expense Tracking App </i></h3>
 
 <p align="center">
   <img src="https://readme-typing-svg.herokuapp.com?font=Poppins&weight=700&size=28&pause=1000&color=36BCF7&center=true&vCenter=true&width=800&lines=Track+Every+Expense;Manage+Income+Smarter;Build+Better+Money+Habits;Stay+Aware+Of+Your+Spending" />
