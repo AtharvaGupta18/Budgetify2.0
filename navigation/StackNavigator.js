@@ -5,6 +5,8 @@ import BottomTabs from './BottomTabNavigator';
 import SignUp from '../(app)/(auth)/SignUp';
 import ForgotPassword from '../(app)/(auth)/ForgotPassword';
 import SplashScreen from '../(app)/SplashScreen';
+import HomeScreen from '../(app)/(screens)/HomeScreen';
+import TransactionScreen from '../(app)/(screens)/TransactionScreen';
 
 export default function StackNavigator() {
   const Stack = createNativeStackNavigator();

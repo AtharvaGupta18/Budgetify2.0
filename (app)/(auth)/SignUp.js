@@ -51,27 +51,28 @@ export default class SignUp extends React.Component {
         });
     }
 
-    async signUp(email, password, confirmPassword) {
-        if (password !== confirmPassword) {
-            Alert.alert("Passwords do not match");
-            this.setState({ password: '', confirmPassword: '' });
-        }
-        if(this.state.name !== '' || email !== '' || password !== '' || confirmPassword !== '') {
+    async signUp(name, email, password, confirmPassword) {
+        if (name && email && password && confirmPassword) {
+            if (password !== confirmPassword) {
+                Alert.alert("Passwords do not match");
+                this.setState({ password: '', confirmPassword: '' });
+            }
+            else {
+                const auth = getAuth();
+                return await createUserWithEmailAndPassword(auth, email, password)
+                    .then((userCredential) => {
+                        const user = userCredential.user;
+                        Alert.alert("User created successfully \n Please login to continue");
+                        this.createDatabaseEntry(user.uid);
+                        this.props.navigation.replace('SignIn');
+                    }).catch((error) => {
+                        const errorCode = error.code;
+                        const errorMessage = error.message;
+                        Alert.alert("User creation failed \n Please try again later");
+                    });
+            }
+        }else{
             Alert.alert("Please fill all the fields");
-        }
-        else {
-            const auth = getAuth();
-            return await createUserWithEmailAndPassword(auth, email, password)
-                .then((userCredential) => {
-                    const user = userCredential.user;
-                    Alert.alert("User created successfully \n Please login to continue");
-                    this.createDatabaseEntry(user.uid);
-                    this.props.navigation.replace('SignIn');
-                }).catch((error) => {
-                    const errorCode = error.code;
-                    const errorMessage = error.message;
-                    Alert.alert("User creation failed \n Please try again later");
-                });
         }
     }
 
@@ -185,7 +186,7 @@ export default class SignUp extends React.Component {
 
                         <View style={styles.bottomContainer}>
                             <TouchableOpacity style={styles.button} activeOpacity={0.8} onPress={() => {
-                                this.signUp(this.state.email, this.state.password, this.state.confirmPassword);
+                                this.signUp(this.state.name, this.state.email, this.state.password, this.state.confirmPassword);
                             }}>
                                 <Text style={styles.buttonText}>Create Account</Text>
                             </TouchableOpacity>

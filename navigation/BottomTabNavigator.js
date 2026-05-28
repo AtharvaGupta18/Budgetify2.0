@@ -1,15 +1,15 @@
 import * as React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import OneScreen from '../(app)/(screens)/OneScreen';
-import TwoScreen from '../(app)/(screens)/TwoScreen';
+import HomeScreen from '../(app)/(screens)/HomeScreen';
+import TransactionScreen from '../(app)/(screens)/TransactionScreen';
 
 const Tab = createBottomTabNavigator();
 
 export default function BottomTabs() {
   return (
-    <Tab.Navigator initialRouteName="One" screenOptions={{ headerShown: false }}>
-      <Tab.Screen name="One" component={OneScreen} />
-      <Tab.Screen name="Two" component={TwoScreen} />
+    <Tab.Navigator initialRouteName="HomeScreen" screenOptions={{ headerShown: false }}>
+      <Tab.Screen name="HomeScreen" component={HomeScreen} />
+      <Tab.Screen name="Transactions" component={TransactionScreen} />
     </Tab.Navigator>
   );
 }
