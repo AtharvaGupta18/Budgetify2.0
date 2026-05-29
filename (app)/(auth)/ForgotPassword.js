@@ -59,7 +59,7 @@ export default class ForgotPassword extends React.Component {
                             </View>
 
                             <Text style={styles.title}>Budgetify</Text>
-                            <Text style={styles.subtitle}>Forgot Password?</Text>
+                            <Text style={styles.subtitle}>Reset Password</Text>
 
                             <Text style={styles.description}>
                                 Enter Email-ID to send password reset Email.

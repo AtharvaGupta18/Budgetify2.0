@@ -37,7 +37,7 @@ export default class SignIn extends React.Component {
 		return await signInWithEmailAndPassword(auth, email, password)
 			.then((userCredential) => {
 				const user = userCredential.user;
-				this.props.navigation.replace('App');
+				this.props.navigation.replace('Home');
 				ToastAndroid.show('Login successful', ToastAndroid.SHORT);
 			}).catch((error) => {
 				const errorCode = error.code;

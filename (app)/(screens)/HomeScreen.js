@@ -59,7 +59,7 @@ export default class HomeScreen extends React.Component {
                     {/* RECENT TRANSACTIONS */}
                     <View style={styles.transactionsHeader}>
                         <Text style={styles.sectionTitle}>Recent Transactions</Text>
-                        <TouchableOpacity>
+                        <TouchableOpacity onPress={() => this.props.navigation.navigate('Transactions')}>
                             <Text style={styles.seeAllText}>See All</Text>
                         </TouchableOpacity>
                     </View>
@@ -129,12 +129,12 @@ export default class HomeScreen extends React.Component {
                         <Text style={styles.tabText}>Transactions</Text>
                     </TouchableOpacity>
 
-                    <TouchableOpacity style={styles.tabItem}>
+                    <TouchableOpacity style={styles.tabItem} onPress={()=>{this.props.navigation.navigate('Reports')}}>
                         <Ionicons name="bar-chart-outline" size={22} color="#95A5A6" />
                         <Text style={styles.tabText}>Reports</Text>
                     </TouchableOpacity>
 
-                    <TouchableOpacity style={styles.tabItem}>
+                    <TouchableOpacity style={styles.tabItem} onPress={()=>{this.props.navigation.navigate('Profile')}}>
                         <Ionicons name="person-outline" size={22} color="#95A5A6" />
                         <Text style={styles.tabText}>Profile</Text>
                     </TouchableOpacity>
