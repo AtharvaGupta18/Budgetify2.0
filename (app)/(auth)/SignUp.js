@@ -12,15 +12,19 @@ import {
     ScrollView,
     Alert,
     ToastAndroid,
-    Image
+    Image,
+    ActivityIndicator,
+    Appearance
 } from 'react-native';
 import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
 import { getDatabase, ref, set } from "firebase/database";
 
+let Theme;
 export default class SignUp extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
+            isThemeLoaded: false,
             email: '',
             password: '',
             confirmPassword: '',
@@ -28,7 +32,18 @@ export default class SignUp extends React.Component {
             secureTextEntry: true,
             secureTextEntryConfirm: true,
         };
+    }
 
+    async componentDidMount() {
+        Theme = await Appearance.getColorScheme();
+        if (Theme === "dark" || Theme === "light") {
+            this.setState({
+                isThemeLoaded: true
+            });
+        }
+        else {
+            Alert.alert("Error");
+        }
     }
 
     toggleSecureEntry = () => {
@@ -71,130 +86,141 @@ export default class SignUp extends React.Component {
                         Alert.alert("User creation failed \n Please try again later");
                     });
             }
-        }else{
+        } else {
             Alert.alert("Please fill all the fields");
         }
     }
 
     render() {
-        return (
-            <SafeAreaView style={styles.container}>
-                <StatusBar barStyle="dark-content" backgroundColor="#F4F9F9" />
+        if (!this.state.isThemeLoaded) {
+            return (
+                <SafeAreaView style={styles.container}>
+                    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                        <ActivityIndicator size="large" color="#0F8A50" />
+                    </View>
+                </SafeAreaView>
+            );
+        }
+        else {
+            return (
+                <SafeAreaView style={Theme === "light" ? styles.container : styles.containerDark}>
+                    <StatusBar barStyle="dark-content" backgroundColor="#F4F9F9" />
 
-                <KeyboardAvoidingView
-                    behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-                    style={{ flex: 1 }}
-                >
-                    <ScrollView
-                        contentContainerStyle={styles.scrollContainer}
-                        showsVerticalScrollIndicator={false}
+                    <KeyboardAvoidingView
+                        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+                        style={{ flex: 1 }}
                     >
-                        <View style={styles.contentContainer}>
-                            <View style={styles.logoContainer}>
-                                <Image
-                                    source={require('../../assets/logo.png')}
-                                    style={styles.logo}
-                                />
-                            </View>
-
-                            <Text style={styles.title}>Budgetify</Text>
-                            <Text style={styles.subtitle}>Create an Account</Text>
-
-                            <Text style={styles.description}>
-                                Sign up to start managing your finances.
-                            </Text>
-                        </View>
-
-                        <View style={styles.formContainer}>
-                            <View style={styles.inputWrapper}>
-                                <Text style={styles.inputLabel}>Name</Text>
-                                <TextInput
-                                    style={styles.input}
-                                    placeholder="Enter your name"
-                                    placeholderTextColor="#94A3B8"
-                                    keyboardType="default"
-                                    value={this.state.name}
-                                    onChangeText={(text) => this.setState({ name: text })}
-                                />
-                            </View>
-
-                            <View style={styles.inputWrapper}>
-                                <Text style={styles.inputLabel}>Email Address</Text>
-                                <TextInput
-                                    style={styles.input}
-                                    placeholder="example@mail.com"
-                                    placeholderTextColor="#94A3B8"
-                                    keyboardType="email-address"
-                                    autoCapitalize="none"
-                                    value={this.state.email}
-                                    onChangeText={(text) => this.setState({ email: text })}
-                                />
-                            </View>
-
-                            <View style={styles.inputWrapper}>
-                                <Text style={styles.inputLabel}>Password</Text>
-                                <View style={styles.passwordContainer}>
-                                    <TextInput
-                                        style={[
-                                            styles.input,
-                                            { flex: 1, borderWidth: 0, height: '100%', marginBottom: 0, paddingHorizontal: 0 },
-                                        ]}
-                                        placeholder="Enter your password"
-                                        placeholderTextColor="#94A3B8"
-                                        secureTextEntry={this.state.secureTextEntry}
-                                        autoCapitalize="none"
-                                        value={this.state.password}
-                                        onChangeText={(text) => this.setState({ password: text })}
+                        <ScrollView
+                            contentContainerStyle={styles.scrollContainer}
+                            showsVerticalScrollIndicator={false}
+                        >
+                            <View style={styles.contentContainer}>
+                                <View style={styles.logoContainer}>
+                                    <Image
+                                        source={require('../../assets/logo.png')}
+                                        style={styles.logo}
                                     />
-                                    <TouchableOpacity
-                                        onPress={this.toggleSecureEntry}
-                                        style={styles.toggleButton}
-                                    >
-                                        <Text style={styles.toggleText}>
-                                            {this.state.secureTextEntry ? 'Show' : 'Hide'}
-                                        </Text>
-                                    </TouchableOpacity>
+                                </View>
+
+                                <Text style={styles.title}>Budgetify</Text>
+                                <Text style={styles.subtitle}>Create an Account</Text>
+
+                                <Text style={styles.description}>
+                                    Sign up to start managing your finances.
+                                </Text>
+                            </View>
+
+                            <View style={styles.formContainer}>
+                                <View style={styles.inputWrapper}>
+                                    <Text style={styles.inputLabel}>Name</Text>
+                                    <TextInput
+                                        style={Theme === "light" ? styles.input : styles.inputDark}
+                                        placeholder="Enter your name"
+                                        placeholderTextColor="#94A3B8"
+                                        keyboardType="default"
+                                        value={this.state.name}
+                                        onChangeText={(text) => this.setState({ name: text })}
+                                    />
+                                </View>
+
+                                <View style={styles.inputWrapper}>
+                                    <Text style={styles.inputLabel}>Email Address</Text>
+                                    <TextInput
+                                        style={Theme === "light" ? styles.input : styles.inputDark}
+                                        placeholder="example@mail.com"
+                                        placeholderTextColor="#94A3B8"
+                                        keyboardType="email-address"
+                                        autoCapitalize="none"
+                                        value={this.state.email}
+                                        onChangeText={(text) => this.setState({ email: text })}
+                                    />
+                                </View>
+
+                                <View style={styles.inputWrapper}>
+                                    <Text style={styles.inputLabel}>Password</Text>
+                                    <View style={Theme === "light" ? styles.passwordContainer : styles.passwordContainerDark}>
+                                        <TextInput
+                                            style={[
+                                                Theme === "light" ? styles.input : styles.inputDark,
+                                                { flex: 1, borderWidth: 0, height: '100%', marginBottom: 0, paddingHorizontal: 0 },
+                                            ]}
+                                            placeholder="Enter your password"
+                                            placeholderTextColor="#94A3B8"
+                                            secureTextEntry={this.state.secureTextEntry}
+                                            autoCapitalize="none"
+                                            value={this.state.password}
+                                            onChangeText={(text) => this.setState({ password: text })}
+                                        />
+                                        <TouchableOpacity
+                                            onPress={this.toggleSecureEntry}
+                                            style={styles.toggleButton}
+                                        >
+                                            <Text style={styles.toggleText}>
+                                                {this.state.secureTextEntry ? 'Show' : 'Hide'}
+                                            </Text>
+                                        </TouchableOpacity>
+                                    </View>
+                                </View>
+
+                                <View style={styles.inputWrapper}>
+                                    <Text style={styles.inputLabel}>Confirm Password</Text>
+                                    <View style={Theme === "light" ? styles.passwordContainer : styles.passwordContainerDark}>
+                                        <TextInput
+                                            style={[
+                                                Theme === "light" ? styles.input : styles.inputDark,
+                                                { flex: 1, borderWidth: 0, height: '100%', marginBottom: 0, paddingHorizontal: 0 },
+                                            ]}
+                                            placeholder="Confirm your password"
+                                            placeholderTextColor="#94A3B8"
+                                            secureTextEntry={this.state.secureTextEntryConfirm}
+                                            autoCapitalize="none"
+                                            value={this.state.confirmPassword}
+                                            onChangeText={(text) => this.setState({ confirmPassword: text })}
+                                        />
+                                        <TouchableOpacity
+                                            onPress={this.toggleSecureEntryConfirm}
+                                            style={styles.toggleButton}
+                                        >
+                                            <Text style={styles.toggleText}>
+                                                {this.state.secureTextEntryConfirm ? 'Show' : 'Hide'}
+                                            </Text>
+                                        </TouchableOpacity>
+                                    </View>
                                 </View>
                             </View>
 
-                            <View style={styles.inputWrapper}>
-                                <Text style={styles.inputLabel}>Confirm Password</Text>
-                                <View style={styles.passwordContainer}>
-                                    <TextInput
-                                        style={[
-                                            styles.input,
-                                            { flex: 1, borderWidth: 0, height: '100%', marginBottom: 0, paddingHorizontal: 0 },
-                                        ]}
-                                        placeholder="Confirm your password"
-                                        placeholderTextColor="#94A3B8"
-                                        secureTextEntry={this.state.secureTextEntryConfirm}
-                                        autoCapitalize="none"
-                                        value={this.state.confirmPassword}
-                                        onChangeText={(text) => this.setState({ confirmPassword: text })}
-                                    />
-                                    <TouchableOpacity
-                                        onPress={this.toggleSecureEntryConfirm}
-                                        style={styles.toggleButton}
-                                    >
-                                        <Text style={styles.toggleText}>
-                                            {this.state.secureTextEntryConfirm ? 'Show' : 'Hide'}
-                                        </Text>
-                                    </TouchableOpacity>
-                                </View>
+                            <View style={styles.bottomContainer}>
+                                <TouchableOpacity style={styles.button} activeOpacity={0.8} onPress={() => {
+                                    this.signUp(this.state.name, this.state.email, this.state.password, this.state.confirmPassword);
+                                }}>
+                                    <Text style={styles.buttonText}>Create Account</Text>
+                                </TouchableOpacity>
                             </View>
-                        </View>
-
-                        <View style={styles.bottomContainer}>
-                            <TouchableOpacity style={styles.button} activeOpacity={0.8} onPress={() => {
-                                this.signUp(this.state.name, this.state.email, this.state.password, this.state.confirmPassword);
-                            }}>
-                                <Text style={styles.buttonText}>Create Account</Text>
-                            </TouchableOpacity>
-                        </View>
-                    </ScrollView>
-                </KeyboardAvoidingView>
-            </SafeAreaView>
-        );
+                        </ScrollView>
+                    </KeyboardAvoidingView>
+                </SafeAreaView>
+            );
+        }
     }
 }
 
@@ -202,6 +228,10 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#F4F9F9',
+    },
+    containerDark: {
+        flex: 1,
+        backgroundColor: '#050C1C',
     },
     scrollContainer: {
         flexGrow: 1,
@@ -277,6 +307,16 @@ const styles = StyleSheet.create({
         fontSize: 15,
         color: '#0F172A',
     },
+    inputDark: {
+        backgroundColor: '#0b162e',
+        borderWidth: 1,
+        borderColor: '#E2E8F0',
+        borderRadius: 12,
+        paddingHorizontal: 16,
+        height: 54,
+        fontSize: 15,
+        color: '#0F172A',
+    },
     passwordContainer: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -288,6 +328,17 @@ const styles = StyleSheet.create({
         paddingLeft: 16,
         paddingRight: 16,
     },
+    passwordContainerDark: {
+		flexDirection: 'row',
+		alignItems: 'center',
+		backgroundColor: '#0b162e',
+		borderWidth: 1,
+		borderColor: '#E2E8F0',
+		borderRadius: 12,
+		height: 54,
+		paddingLeft: 16,
+		paddingRight: 16,
+	},
     toggleButton: {
         justifyContent: 'center',
     },

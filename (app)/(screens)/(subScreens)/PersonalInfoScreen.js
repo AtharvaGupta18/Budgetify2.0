@@ -4,7 +4,7 @@ import { getAuth } from "firebase/auth";
 import { getDatabase, ref, onValue } from "firebase/database";
 import { Ionicons } from '@expo/vector-icons';
 
-let isDarkTheme;
+let Theme;
 export default class PersonalInfoScreen extends React.Component {
     constructor(props) {
         super(props);
@@ -22,7 +22,7 @@ export default class PersonalInfoScreen extends React.Component {
         onValue(themeRef, (snapshot) => {
             if (snapshot.exists()) {
                 const theme = snapshot.val();
-                isDarkTheme = theme;
+                Theme = theme;
                 this.setState({ isThemeLoaded: true });
             } else {
                 Alert.alert("No theme preference found in database.");
@@ -43,14 +43,14 @@ export default class PersonalInfoScreen extends React.Component {
             return (
                 <SafeAreaView style={{
                     flex: 1,
-                    marginTop: StatusBar.currentHeight,
-                    backgroundColor: isDarkTheme === "light" ? "#FAFAFA" : "#050C1C"
+                    backgroundColor: Theme === "light" ? "#FAFAFA" : "#050C1C"
                 }}>
-                    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+                    <StatusBar backgroundColor={Theme === "light" ? "#FAFAFA" : "#050C1C"} />
+                    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center'}}>
                         <Text style={{
                             fontSize: 24,
                             fontWeight: 'bold',
-                            color: isDarkTheme === "light" ? "#050C1C" : "#FAFAFA"
+                            color: Theme === "light" ? "#050C1C" : "#FAFAFA"
                         }}>Personal Information</Text>
                     </View>
                 </SafeAreaView >

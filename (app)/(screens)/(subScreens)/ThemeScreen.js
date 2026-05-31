@@ -1,16 +1,16 @@
 import React, { Component } from "react";
-import { View, Switch, Alert, SafeAreaView, StatusBar } from "react-native";
-import { getDatabase, ref, set } from "firebase/database";
+import { View, Switch, Alert, SafeAreaView, StatusBar, ActivityIndicator } from "react-native";
+import { getDatabase, ref, set, onValue} from "firebase/database";
 import { getAuth } from "firebase/auth";
 
-let isDarkTheme = false;
+let Theme, isDarkTheme=false;
 
 export default class ThemeScreen extends Component {
 	constructor(props) {
 		super(props);
 
 		this.state = {
-			isDarkTheme: false,
+			isThemeLoaded: false,
 			uid: null
 		};
 	}
@@ -20,7 +20,24 @@ export default class ThemeScreen extends Component {
 		const auth = getAuth();
 		const uid = await auth.currentUser.uid;
 		await this.setState({ uid: uid });
-		
+
+		// Fetch the user's theme preference from the database and set it in the state
+		const db = getDatabase();
+		const themeRef = await ref(db, "users/" + uid + "/theme");
+		onValue(themeRef, (snapshot) => {
+			if (snapshot.exists()) {
+				const theme = snapshot.val();
+				Theme = theme;
+				if(Theme === "dark") {
+					isDarkTheme = true;
+				}else{
+					isDarkTheme = false;
+				}
+				this.setState({ isThemeLoaded: true });
+			} else {
+				Alert.alert("No theme preference found in database.");
+			}
+		});
 	}
 
 	async updateThemeInDatabase(isDark) {
@@ -35,30 +52,39 @@ export default class ThemeScreen extends Component {
 
 	toggleTheme = () => {
 		isDarkTheme = !isDarkTheme;
-		this.setState({ isDarkTheme });
 		this.updateThemeInDatabase(isDarkTheme);
 	};
 
 	render() {
-		return (
-			<SafeAreaView style={{ flex: 1, backgroundColor: this.state.isDarkTheme ? "#050C1C" : "#FAFAFA", marginTop: StatusBar.currentHeight }}>
-				<View
-					style={{
-						flex: 1,
-						justifyContent: "center",
-						alignItems: "center",
-					}}
-				>
-					<Switch
-						value={this.state.isDarkTheme}
-						onValueChange={this.toggleTheme}
-						trackColor={{
-							false: "#D1D5DB",
-							true: "#0F8A50",
+		if (!this.state.isThemeLoaded && !Theme) {
+			return (
+				<SafeAreaView style={{ flex: 1, backgroundColor: "#FAFAFA", marginTop: StatusBar.currentHeight }}>
+					<ActivityIndicator size="large" color="#0F8A50" style={{ flex: 1, justifyContent: "center", alignItems: "center" }} />
+				</SafeAreaView>
+			);
+		} else {
+			return (
+				<SafeAreaView style={{ flex: 1, backgroundColor: Theme === "dark" ? "#050C1C" : "#FAFAFA"}}>
+					<StatusBar backgroundColor={Theme === "dark" ? "#050C1C" : "#FAFAFA"} />
+					<View
+						style={{
+							flex: 1,
+							justifyContent: "center",
+							alignItems: "center",
+							marginTop: StatusBar.currentHeight,
 						}}
-					/>
-				</View>
-			</SafeAreaView>
-		);
+					>
+						<Switch
+							value={isDarkTheme}
+							onValueChange={this.toggleTheme}
+							trackColor={{
+								false: "#D1D5DB",
+								true: "#0F8A50",
+							}}
+						/>
+					</View>
+				</SafeAreaView>
+			);
+		}
 	}
 }

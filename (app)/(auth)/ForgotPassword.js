@@ -11,17 +11,31 @@ import {
     Platform,
     ScrollView,
     Alert,
-    Image
+    Image,
+    ActivityIndicator, 
+    Appearance
 } from 'react-native';
 import { getAuth, sendPasswordResetEmail } from "firebase/auth";
+import { getDatabase, ref, onValue } from "firebase/database";
 
+let Theme;
 export default class ForgotPassword extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            email: ''
+            email: '',
+            isThemeLoaded: false
         };
     }
+
+    async componentDidMount() {
+        // Fetch the user's theme preference from the database and set it in the state
+        Theme = await Appearance.getColorScheme();
+        if(Theme === "dark" || Theme === "light"){
+            this.setState({isThemeLoaded: true});
+        }
+    }
+
 
     async forgotPassword(email) {
         const auth = getAuth();
@@ -37,69 +51,80 @@ export default class ForgotPassword extends React.Component {
             });
     }
 
+
     render() {
-        return (
-            <SafeAreaView style={styles.container}>
-                <StatusBar barStyle="dark-content" backgroundColor="#F4F9F9" />
+        if (!this.state.isThemeLoaded) {
+            return (
+                <SafeAreaView style={{
+                    flex: 1,
+                    backgroundColor: Theme === "#FAFAFA"
+                }}>
+                    <ActivityIndicator size="large" color="#0F8A50" />
+                </SafeAreaView>
+            );
+        } else {
+            return (
+                <SafeAreaView style={{
+                    flex: 1,
+                    backgroundColor: Theme === "light" ? "#FAFAFA" : "#050C1C",
+                }}>
+                    <StatusBar barStyle="dark-content" backgroundColor={Theme === "light" ? "#FAFAFA" : "#050C1C"} />
 
-                <KeyboardAvoidingView
-                    behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-                    style={{ flex: 1 }}
-                >
-                    <ScrollView
-                        contentContainerStyle={styles.scrollContainer}
-                        showsVerticalScrollIndicator={false}
+                    <KeyboardAvoidingView
+                        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+                        style={{ flex: 1 }}
                     >
-                        <View style={styles.contentContainer}>
-                            <View style={styles.logoContainer}>
-                                <Image
-                                    source={require('../../assets/logo.png')}
-                                    style={styles.logo}
-                                />
+                        <ScrollView
+                            contentContainerStyle={styles.scrollContainer}
+                            showsVerticalScrollIndicator={false}
+                        >
+                            <View style={styles.contentContainer}>
+                                <View style={styles.logoContainer}>
+                                    <Image
+                                        source={require('../../assets/logo.png')}
+                                        style={styles.logo}
+                                    />
+                                </View>
+
+                                <Text style={styles.title}>Budgetify</Text>
+                                <Text style={Theme === "light" ? styles.subtitle : styles.subtitleDark}>Reset Password</Text>
+
+                                <Text style={styles.description}>
+                                    Enter Email-ID to send password reset Email.
+                                </Text>
                             </View>
 
-                            <Text style={styles.title}>Budgetify</Text>
-                            <Text style={styles.subtitle}>Reset Password</Text>
-
-                            <Text style={styles.description}>
-                                Enter Email-ID to send password reset Email.
-                            </Text>
-                        </View>
-
-                        <View style={styles.formContainer}>
-                            <View style={styles.inputWrapper}>
-                                <Text style={styles.inputLabel}>Email Address</Text>
-                                <TextInput
-                                    style={styles.input}
-                                    placeholder="example@mail.com"
-                                    placeholderTextColor="#94A3B8"
-                                    keyboardType="email-address"
-                                    autoCapitalize="none"
-                                    value={this.state.email}
-                                    onChangeText={(text) => this.setState({ email: text })}
-                                />
+                            <View style={styles.formContainer}>
+                                <View style={styles.inputWrapper}>
+                                    <Text style={styles.inputLabel}>Email Address</Text>
+                                    <TextInput
+                                        style={Theme === "light" ? styles.input : styles.inputDark}
+                                        placeholder="example@mail.com"
+                                        placeholderTextColor="#94A3B8"
+                                        keyboardType="email-address"
+                                        autoCapitalize="none"
+                                        value={this.state.email}
+                                        onChangeText={(text) => this.setState({ email: text })}
+                                    />
+                                </View>
                             </View>
-                        </View>
 
-                        <View style={styles.bottomContainer}>
-                            <TouchableOpacity style={styles.button} activeOpacity={0.8} onPress={() => {
-                                this.forgotPassword(this.state.email);
-                            }}>
-                                <Text style={styles.buttonText}>Send Reset Email</Text>
-                            </TouchableOpacity>
-                        </View>
-                    </ScrollView>
-                </KeyboardAvoidingView>
-            </SafeAreaView>
-        );
+                            <View style={styles.bottomContainer}>
+                                <TouchableOpacity style={styles.button} activeOpacity={0.8} onPress={() => {
+                                    this.forgotPassword(this.state.email);
+                                }}>
+                                    <Text style={styles.buttonText}>Send Reset Email</Text>
+                                </TouchableOpacity>
+                            </View>
+                        </ScrollView>
+                    </KeyboardAvoidingView>
+                </SafeAreaView>
+            );
+        }
     }
 }
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: '#F4F9F9',
-    },
     scrollContainer: {
         flexGrow: 1,
         justifyContent: 'space-between',
@@ -143,6 +168,13 @@ const styles = StyleSheet.create({
         marginBottom: 10,
         textAlign: 'center',
     },
+    subtitleDark: {
+        fontSize: 18,
+        fontWeight: '700',
+        color: '#9faec2',
+        marginBottom: 10,
+        textAlign: 'center',
+    },
     description: {
         fontSize: 15,
         color: '#475569',
@@ -173,16 +205,15 @@ const styles = StyleSheet.create({
         fontSize: 15,
         color: '#0F172A',
     },
-    passwordContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        backgroundColor: '#FFFFFF',
+    inputDark: {
+        backgroundColor: '#0b162e',
         borderWidth: 1,
-        borderColor: '#E2E8F0',
+        borderColor: '#1c293b',
         borderRadius: 12,
+        paddingHorizontal: 16,
         height: 54,
-        paddingLeft: 16,
-        paddingRight: 16,
+        fontSize: 15,
+        color: '#0F172A',
     },
     toggleButton: {
         justifyContent: 'center',
@@ -225,15 +256,5 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'center',
         alignItems: 'center',
-    },
-    signupText: {
-        fontSize: 14,
-        color: '#64748B',
-        fontWeight: '500',
-    },
-    signupLink: {
-        fontSize: 14,
-        color: '#22A467',
-        fontWeight: '700',
-    },
+    }
 });

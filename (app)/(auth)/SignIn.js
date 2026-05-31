@@ -12,10 +12,14 @@ import {
 	ScrollView,
 	Alert,
 	ToastAndroid,
-	Image
+	Image,
+	ActivityIndicator,
+	Appearance
 } from 'react-native';
 import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
+import { getDatabase, ref, set } from 'firebase/database';
 
+let Theme;
 export default class SignIn extends React.Component {
 	constructor(props) {
 		super(props);
@@ -23,6 +27,7 @@ export default class SignIn extends React.Component {
 			email: '',
 			password: '',
 			secureTextEntry: true,
+			isThemeLoaded: false,
 		};
 	}
 
@@ -32,11 +37,20 @@ export default class SignIn extends React.Component {
 		}));
 	};
 
-	async signIn(email, password) {
+	async signIn(email, password, theme) {
 		const auth = getAuth();
-		return await signInWithEmailAndPassword(auth, email, password)
+		await signInWithEmailAndPassword(auth, email, password)
 			.then((userCredential) => {
-				const user = userCredential.user;
+				const uid = userCredential.user.uid;
+				const db = getDatabase();
+				const themeRef = ref(db, "users/" + uid + "/theme");
+				try {
+					set(themeRef, theme);
+				}
+				catch (error) {
+					Alert.alert("Something went wrong", error.message);
+				}
+
 				this.props.navigation.replace('Home');
 				ToastAndroid.show('Login successful', ToastAndroid.SHORT);
 			}).catch((error) => {
@@ -46,95 +60,118 @@ export default class SignIn extends React.Component {
 			});
 	}
 
+	async componentDidMount() {
+		Theme = await Appearance.getColorScheme();
+		if (Theme === "dark" || Theme === "light") {
+			this.setState({
+				isThemeLoaded: true
+			});
+		}
+		else {
+			Alert.alert("Error");
+		}
+	}
+
 	render() {
-		return (
-			<SafeAreaView style={styles.container}>
-				<StatusBar barStyle="dark-content" backgroundColor="#F4F9F9" />
+		if (!this.state.isThemeLoaded) {
+			return (
+				<SafeAreaView style={styles.container}>
+					<View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+						<ActivityIndicator size="large" color="#0F8A50" />
+					</View>
+				</SafeAreaView>
+			);
+		}
+		else {
+			return (
+				<SafeAreaView style={Theme === "light" ? styles.container : styles.containerDark}>
+					<StatusBar barStyle="dark-content" backgroundColor="#F4F9F9" />
 
-				<KeyboardAvoidingView
-					behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-					style={{ flex: 1 }}
-				>
-					<ScrollView
-						contentContainerStyle={styles.scrollContainer}
-						showsVerticalScrollIndicator={false}
+					<KeyboardAvoidingView
+						behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+						style={{ flex: 1 }}
 					>
-						<View style={styles.contentContainer}>
-							<View style={styles.logoContainer}>
-								<Image
-									source={require('../../assets/logo.png')}
-									style={styles.logo}
-								/>
-							</View>
-
-							<Text style={styles.title}>Budgetify</Text>
-							<Text style={styles.subtitle}>Welcome Back!</Text>
-
-							<Text style={styles.description}>
-								Login to keep managing your finances.
-							</Text>
-						</View>
-
-						<View style={styles.formContainer}>
-							<View style={styles.inputWrapper}>
-								<Text style={styles.inputLabel}>Email Address</Text>
-								<TextInput
-									style={styles.input}
-									placeholder="example@mail.com"
-									placeholderTextColor="#94A3B8"
-									keyboardType="email-address"
-									autoCapitalize="none"
-									value={this.state.email}
-									onChangeText={(text) => this.setState({ email: text })}
-								/>
-							</View>
-
-							<View style={styles.inputWrapper}>
-								<Text style={styles.inputLabel}>Password</Text>
-								<View style={styles.passwordContainer}>
-									<TextInput
-										style={[
-											styles.input,
-											{ flex: 1, borderWidth: 0, height: '100%', marginBottom: 0, paddingHorizontal: 0 },
-										]}
-										placeholder="Enter your password"
-										placeholderTextColor="#94A3B8"
-										secureTextEntry={this.state.secureTextEntry}
-										autoCapitalize="none"
-										value={this.state.password}
-										onChangeText={(text) => this.setState({ password: text })}
+						<ScrollView
+							contentContainerStyle={styles.scrollContainer}
+							showsVerticalScrollIndicator={false}
+						>
+							<View style={styles.contentContainer}>
+								<View style={styles.logoContainer}>
+									<Image
+										source={require('../../assets/logo.png')}
+										style={styles.logo}
 									/>
-									<TouchableOpacity
-										onPress={this.toggleSecureEntry}
-										style={styles.toggleButton}
-									>
-										<Text style={styles.toggleText}>
-											{this.state.secureTextEntry ? 'Show' : 'Hide'}
-										</Text>
-									</TouchableOpacity>
 								</View>
+
+								<Text style={styles.title}>Budgetify</Text>
+								<Text style={Theme === "light" ? styles.subtitle : styles.subtitleDark}>Welcome Back!</Text>
+
+								<Text style={Theme === "light" ? styles.description : styles.descriptionDark}>
+									Login to keep managing your finances.
+								</Text>
 							</View>
 
-							<TouchableOpacity style={styles.forgotPasswordContainer} activeOpacity={0.6} onPress={() => {
-								// Navigate to Forgot Password Screen
-								this.props.navigation.navigate('ForgotPassword');
-							}}>
-								<Text style={styles.forgotPasswordText}>Forgot Password?</Text>
-							</TouchableOpacity>
-						</View>
+							<View style={styles.formContainer}>
+								<View style={styles.inputWrapper}>
+									<Text style={styles.inputLabel}>Email Address</Text>
+									<TextInput
+										style={Theme === "light" ? styles.input : styles.inputDark}
+										placeholder="example@mail.com"
+										placeholderTextColor="#94A3B8"
+										keyboardType="email-address"
+										autoCapitalize="none"
+										value={this.state.email}
+										onChangeText={(text) => this.setState({ email: text })}
+									/>
+								</View>
 
-						<View style={styles.bottomContainer}>
-							<TouchableOpacity style={styles.button} activeOpacity={0.8} onPress={() => {
-								// Handle Login
-								this.signIn(this.state.email, this.state.password);
-							}}>
-								<Text style={styles.buttonText}>Login</Text>
-							</TouchableOpacity>
-						</View>
-					</ScrollView>
-				</KeyboardAvoidingView>
-			</SafeAreaView>
-		);
+								<View style={styles.inputWrapper}>
+									<Text style={styles.inputLabel}>Password</Text>
+									<View style={Theme==="light" ? styles.passwordContainer : styles.passwordContainerDark}>
+										<TextInput
+											style={[
+												Theme === "light" ? styles.input : styles.inputDark,
+												{ flex: 1, borderWidth: 0, height: '100%', marginBottom: 0, paddingHorizontal: 0 },
+											]}
+											placeholder="Enter your password"
+											placeholderTextColor="#94A3B8"
+											secureTextEntry={this.state.secureTextEntry}
+											autoCapitalize="none"
+											value={this.state.password}
+											onChangeText={(text) => this.setState({ password: text })}
+										/>
+										<TouchableOpacity
+											onPress={this.toggleSecureEntry}
+											style={styles.toggleButton}
+										>
+											<Text style={styles.toggleText}>
+												{this.state.secureTextEntry ? 'Show' : 'Hide'}
+											</Text>
+										</TouchableOpacity>
+									</View>
+								</View>
+
+								<TouchableOpacity style={styles.forgotPasswordContainer} activeOpacity={0.6} onPress={() => {
+									// Navigate to Forgot Password Screen
+									this.props.navigation.navigate('ForgotPassword');
+								}}>
+									<Text style={styles.forgotPasswordText}>Forgot Password?</Text>
+								</TouchableOpacity>
+							</View>
+
+							<View style={styles.bottomContainer}>
+								<TouchableOpacity style={styles.button} activeOpacity={0.8} onPress={() => {
+									// Handle Login
+									this.signIn(this.state.email, this.state.password, Theme);
+								}}>
+									<Text style={styles.buttonText}>Login</Text>
+								</TouchableOpacity>
+							</View>
+						</ScrollView>
+					</KeyboardAvoidingView>
+				</SafeAreaView>
+			);
+		}
 	}
 }
 
@@ -143,10 +180,14 @@ const styles = StyleSheet.create({
 		flex: 1,
 		backgroundColor: '#F4F9F9',
 	},
+	containerDark: {
+		flex: 1,
+		backgroundColor: '#050C1C',
+	},
 	scrollContainer: {
 		flexGrow: 1,
 		justifyContent: 'space-between',
-		paddingHorizontal: 25,
+		paddingHorizontal: 10,
 		paddingBottom: 40,
 	},
 	contentContainer: {
@@ -180,15 +221,29 @@ const styles = StyleSheet.create({
 		letterSpacing: 0.5,
 	},
 	subtitle: {
-		fontSize: 18,
+		fontSize: 22,
 		fontWeight: '700',
 		color: '#1E293B',
 		marginBottom: 10,
 		textAlign: 'center',
 	},
+	subtitleDark: {
+		fontSize: 22,
+		fontWeight: '700',
+		color: '#F5F5F5',
+		marginBottom: 10,
+		textAlign: 'center',
+	},
 	description: {
-		fontSize: 15,
+		fontSize: 18,
 		color: '#475569',
+		textAlign: 'center',
+		lineHeight: 22,
+		fontWeight: '500',
+	},
+	descriptionDark: {
+		fontSize: 18,
+		color: '#A0A0A0',
 		textAlign: 'center',
 		lineHeight: 22,
 		fontWeight: '500',
@@ -216,10 +271,31 @@ const styles = StyleSheet.create({
 		fontSize: 15,
 		color: '#0F172A',
 	},
+	inputDark: {
+		backgroundColor: '#0b162e',
+		borderWidth: 1,
+		borderColor: '#E2E8F0',
+		borderRadius: 12,
+		paddingHorizontal: 16,
+		height: 54,
+		fontSize: 15,
+		color: '#0F172A',
+	},
 	passwordContainer: {
 		flexDirection: 'row',
 		alignItems: 'center',
 		backgroundColor: '#FFFFFF',
+		borderWidth: 1,
+		borderColor: '#E2E8F0',
+		borderRadius: 12,
+		height: 54,
+		paddingLeft: 16,
+		paddingRight: 16,
+	},
+	passwordContainerDark: {
+		flexDirection: 'row',
+		alignItems: 'center',
+		backgroundColor: '#0b162e',
 		borderWidth: 1,
 		borderColor: '#E2E8F0',
 		borderRadius: 12,
