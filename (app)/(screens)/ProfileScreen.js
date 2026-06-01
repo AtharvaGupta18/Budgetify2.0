@@ -233,11 +233,13 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: "#FAFAFA",
         paddingHorizontal: 10,
+        marginTop: - (StatusBar.currentHeight)
     },
     containerDark: {
         flex: 1,
         backgroundColor: "#050C1C",
         paddingHorizontal: 10,
+        marginTop: - (StatusBar.currentHeight)
     },
     scrollContent: {
         paddingHorizontal: 10,

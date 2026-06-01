@@ -53,7 +53,7 @@ export default class HomeScreen extends React.Component {
             )
         } else {
             return (
-                <SafeAreaView style={{ flex: 1, backgroundColor: Theme === "light" ? "#FAFAFA" : "#050C1C" }}>
+                <SafeAreaView style={{ flex: 1, backgroundColor: Theme === "light" ? "#FAFAFA" : "#050C1C", marginTop: - (StatusBar.currentHeight + 10)}}>
                     <StatusBar backgroundColor={Theme === "light" ? "#FAFAFA" : "#050C1C"} />
 
                     {/* HEADER SECTION */}
@@ -76,12 +76,12 @@ export default class HomeScreen extends React.Component {
                             <View style={styles.statsContainer}>
                                 <View style={styles.statBox}>
                                     <Text style={styles.statLabel}>Income</Text>
-                                    <Text style={ styles.statValue}>₹ 40,000.00</Text>
+                                    <Text style={ styles.income}>₹ 40,000.00</Text>
                                 </View>
                                 <View style={styles.statDivider} />
                                 <View style={styles.statBox}>
                                     <Text style={styles.statLabel}>Expenses</Text>
-                                    <Text style={styles.statValue}>₹ 15,250.00</Text>
+                                    <Text style={styles.expenses}>₹ 15,250.00</Text>
                                 </View>
                             </View>
                         </View>
@@ -250,13 +250,13 @@ const styles = StyleSheet.create({
     },
     balanceTitle: {
         color: 'rgba(255,255,255,0.8)',
-        fontSize: 14,
+        fontSize: 16,
     },
     balanceAmount: {
-        color: '#FFF',
+        color: '#8ae8ff',
         fontSize: 30,
         fontWeight: 'bold',
-        marginVertical: 15,
+        marginVertical: 5,
     },
     statsContainer: {
         flexDirection: 'row',
@@ -264,26 +264,31 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         marginTop: 5,
         paddingTop: 15,
-        borderTopWidth: 1,
-        borderTopColor: 'rgba(255,255,255,0.15)',
+        borderTopWidth: 2,
+        borderTopColor: 'rgba(255,255,255,0.6)',
     },
     statBox: {
         flex: 1,
     },
     statLabel: {
-        color: 'rgba(255,255,255,0.7)',
-        fontSize: 12,
+        color: 'rgba(255,255,255,0.8)',
+        fontSize: 15,
         marginBottom: 2,
     },
-    statValue: {
-        color: '#FFF',
-        fontSize: 15,
-        fontWeight: '600',
+    income: {
+        color: '#89c206',
+        fontSize: 20,
+        fontWeight: '700'
+    },
+    expenses: {
+        color: 'rgba(250,10,50,0.9)',
+        fontSize: 20,
+        fontWeight: '700'
     },
     statDivider: {
-        width: 1,
-        height: 30,
-        backgroundColor: 'rgba(255,255,255,0.2)',
+        width: 2,
+        height: 50,
+        backgroundColor: 'rgba(255,255,255,0.6)',
         marginHorizontal: 15,
     },
     sectionTitle: {
