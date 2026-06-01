@@ -5,7 +5,6 @@ import {
     View,
     TextInput,
     TouchableOpacity,
-    SafeAreaView,
     StatusBar,
     KeyboardAvoidingView,
     Platform,
@@ -17,6 +16,7 @@ import {
 } from 'react-native';
 import { getAuth, sendPasswordResetEmail } from "firebase/auth";
 import { getDatabase, ref, onValue } from "firebase/database";
+import {SafeAreaView} from 'react-native-safe-area-context';
 
 let Theme;
 export default class ForgotPassword extends React.Component {

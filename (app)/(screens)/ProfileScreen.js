@@ -3,7 +3,6 @@ import {
     View,
     Text,
     StyleSheet,
-    SafeAreaView,
     TouchableOpacity,
     ScrollView,
     Image,
@@ -18,6 +17,7 @@ import {
 } from "@expo/vector-icons";
 import { getAuth, signOut } from "firebase/auth";
 import { getDatabase, ref, onValue } from "firebase/database";
+import {SafeAreaView} from 'react-native-safe-area-context';
 
 let Theme;
 export default class ProfileScreen extends React.Component {

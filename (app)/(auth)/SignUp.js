@@ -5,7 +5,6 @@ import {
     View,
     TextInput,
     TouchableOpacity,
-    SafeAreaView,
     StatusBar,
     KeyboardAvoidingView,
     Platform,
@@ -18,6 +17,7 @@ import {
 } from 'react-native';
 import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
 import { getDatabase, ref, set } from "firebase/database";
+import {SafeAreaView} from 'react-native-safe-area-context';
 
 let Theme;
 export default class SignUp extends React.Component {
@@ -123,16 +123,16 @@ export default class SignUp extends React.Component {
                                 </View>
 
                                 <Text style={styles.title}>Budgetify</Text>
-                                <Text style={styles.subtitle}>Create an Account</Text>
+                                <Text style={Theme === "light" ? styles.subtitle : styles.subtitleDark}>Create an Account</Text>
 
-                                <Text style={styles.description}>
+                                <Text style={Theme === "light" ? styles.description : styles.descriptionDark}>
                                     Sign up to start managing your finances.
                                 </Text>
                             </View>
 
                             <View style={styles.formContainer}>
                                 <View style={styles.inputWrapper}>
-                                    <Text style={styles.inputLabel}>Name</Text>
+                                    <Text style={Theme === "light" ? styles.inputLabel : styles.inputLabelDark}>Name</Text>
                                     <TextInput
                                         style={Theme === "light" ? styles.input : styles.inputDark}
                                         placeholder="Enter your name"
@@ -144,7 +144,7 @@ export default class SignUp extends React.Component {
                                 </View>
 
                                 <View style={styles.inputWrapper}>
-                                    <Text style={styles.inputLabel}>Email Address</Text>
+                                    <Text style={Theme === "light" ? styles.inputLabel : styles.inputLabelDark}>Email Address</Text>
                                     <TextInput
                                         style={Theme === "light" ? styles.input : styles.inputDark}
                                         placeholder="example@mail.com"
@@ -157,7 +157,7 @@ export default class SignUp extends React.Component {
                                 </View>
 
                                 <View style={styles.inputWrapper}>
-                                    <Text style={styles.inputLabel}>Password</Text>
+                                    <Text style={Theme === "light" ? styles.inputLabel : styles.inputLabelDark}>Password</Text>
                                     <View style={Theme === "light" ? styles.passwordContainer : styles.passwordContainerDark}>
                                         <TextInput
                                             style={[
@@ -183,7 +183,7 @@ export default class SignUp extends React.Component {
                                 </View>
 
                                 <View style={styles.inputWrapper}>
-                                    <Text style={styles.inputLabel}>Confirm Password</Text>
+                                    <Text style={Theme === "light" ? styles.inputLabel : styles.inputLabelDark}>Confirm Password</Text>
                                     <View style={Theme === "light" ? styles.passwordContainer : styles.passwordContainerDark}>
                                         <TextInput
                                             style={[
@@ -271,19 +271,33 @@ const styles = StyleSheet.create({
         marginTop: -10,
     },
     subtitle: {
-        fontSize: 18,
-        fontWeight: '700',
-        color: '#1E293B',
-        marginBottom: 5,
-        textAlign: 'center',
-    },
+		fontSize: 22,
+		fontWeight: '700',
+		color: '#1E293B',
+		marginBottom: 10,
+		textAlign: 'center',
+	},
+	subtitleDark: {
+		fontSize: 22,
+		fontWeight: '700',
+		color: '#F5F5F5',
+		marginBottom: 10,
+		textAlign: 'center',
+	},
     description: {
-        fontSize: 15,
-        color: '#475569',
-        textAlign: 'center',
-        lineHeight: 18,
-        fontWeight: '500',
-    },
+		fontSize: 18,
+		color: '#475569',
+		textAlign: 'center',
+		lineHeight: 22,
+		fontWeight: '500',
+	},
+	descriptionDark: {
+		fontSize: 18,
+		color: '#A0A0A0',
+		textAlign: 'center',
+		lineHeight: 22,
+		fontWeight: '500',
+	},
     formContainer: {
         flex: 1,
         justifyContent: 'flex-start',
@@ -295,6 +309,12 @@ const styles = StyleSheet.create({
         fontSize: 14,
         fontWeight: '600',
         color: '#1E293B',
+        marginBottom: 8,
+    },
+    inputLabelDark: {
+        fontSize: 14,
+        fontWeight: '600',
+        color: '#A5A5A5',
         marginBottom: 8,
     },
     input: {

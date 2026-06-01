@@ -1,7 +1,8 @@
 import React, { Component } from "react";
-import { View, Switch, Alert, SafeAreaView, StatusBar, ActivityIndicator } from "react-native";
+import { View, Switch, Alert, StatusBar, ActivityIndicator } from "react-native";
 import { getDatabase, ref, set, onValue} from "firebase/database";
 import { getAuth } from "firebase/auth";
+import {SafeAreaView} from 'react-native-safe-area-context';
 
 let Theme, isDarkTheme=false;
 

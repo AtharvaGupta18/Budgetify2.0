@@ -5,7 +5,6 @@ import {
 	View,
 	TextInput,
 	TouchableOpacity,
-	SafeAreaView,
 	StatusBar,
 	KeyboardAvoidingView,
 	Platform,
@@ -18,6 +17,7 @@ import {
 } from 'react-native';
 import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 import { getDatabase, ref, set } from 'firebase/database';
+import {SafeAreaView} from 'react-native-safe-area-context';
 
 let Theme;
 export default class SignIn extends React.Component {
@@ -259,6 +259,12 @@ const styles = StyleSheet.create({
 		fontSize: 14,
 		fontWeight: '600',
 		color: '#1E293B',
+		marginBottom: 8,
+	},
+	inputLabel: {
+		fontSize: 14,
+		fontWeight: '600',
+		color: '#A5A5A5',
 		marginBottom: 8,
 	},
 	input: {

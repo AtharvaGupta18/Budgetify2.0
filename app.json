@@ -3,6 +3,19 @@
     "name": "Budgetify",
     "slug": "Budgetify",
     "version": "1.0.0",
-    "userInterfaceStyle": "automatic"
+    "userInterfaceStyle": "automatic",
+    "icon": "./assets/logo.png",
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/logo.png",
+        "backgroundColor": "#ffffff"
+      },
+      "package": "com.ReactNestStudios.Budgetify"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "981d34b8-2750-44e8-aec9-e498c476e038"
+      }
+    }
   }
 }

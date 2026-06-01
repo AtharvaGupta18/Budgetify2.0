@@ -5,12 +5,12 @@ import {
 	View,
 	Image,
 	TouchableOpacity,
-	SafeAreaView,
 	StatusBar,
 	Appearance,
 	ActivityIndicator,
 	Alert
 } from 'react-native';
+import {SafeAreaView} from 'react-native-safe-area-context';
 
 let Theme;
 export default class SplashScreen extends React.Component {

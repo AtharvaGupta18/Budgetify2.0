@@ -1,8 +1,9 @@
 import * as React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, StatusBar, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, StatusBar, ActivityIndicator } from 'react-native';
 import { getAuth } from "firebase/auth";
 import { getDatabase, ref, onValue } from "firebase/database";
 import { Ionicons } from '@expo/vector-icons';
+import {SafeAreaView} from 'react-native-safe-area-context';
 
 let Theme;
 export default class PersonalInfoScreen extends React.Component {
