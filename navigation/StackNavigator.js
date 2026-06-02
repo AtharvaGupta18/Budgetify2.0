@@ -10,6 +10,8 @@ import ReportsScreen from '../(app)/(screens)/ReportsScreen';
 import ProfileScreen from '../(app)/(screens)/ProfileScreen';
 import ThemeScreen from '../(app)/(screens)/(subScreens)/ThemeScreen';
 import PersonalInfoScreen from '../(app)/(screens)/(subScreens)/PersonalInfoScreen';
+import AddExpenseScreen from '../(app)/(screens)/(subScreens)/AddExpenseScreen';
+import AddIncomeScreen from '../(app)/(screens)/(subScreens)/AddIncomeScreen';
 
 export default function StackNavigator() {
   const Stack = createNativeStackNavigator();
@@ -25,6 +27,8 @@ export default function StackNavigator() {
         <Stack.Screen name="PersonalInfo" component={PersonalInfoScreen} />
         <Stack.Screen name="Profile" component={ProfileScreen} />
         <Stack.Screen name="Theme" component={ThemeScreen} />
+        <Stack.Screen name="AddExpense" component={AddExpenseScreen} />
+        <Stack.Screen name="AddIncome" component={AddIncomeScreen} />
       </Stack.Navigator>
   );
 }

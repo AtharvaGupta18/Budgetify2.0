@@ -43,13 +43,13 @@ export default class SignIn extends React.Component {
 			.then((userCredential) => {
 				const uid = userCredential.user.uid;
 				const db = getDatabase();
-				const themeRef = ref(db, "users/" + uid + "/theme");
-				try {
-					set(themeRef, theme);
-				}
-				catch (error) {
-					Alert.alert("Something went wrong", error.message);
-				}
+				// const themeRef = ref(db, "users/" + uid + "/theme");
+				// try {
+				// 	set(themeRef, theme);
+				// }
+				// catch (error) {
+				// 	Alert.alert("Something went wrong", error.message);
+				// }
 
 				this.props.navigation.replace('Home');
 				ToastAndroid.show('Login successful', ToastAndroid.SHORT);
@@ -113,11 +113,10 @@ export default class SignIn extends React.Component {
 
 							<View style={styles.formContainer}>
 								<View style={styles.inputWrapper}>
-									<Text style={styles.inputLabel}>Email Address</Text>
+									<Text style={Theme === "light" ? styles.inputLabel : styles.inputLabelDark}>Email Address</Text>
 									<TextInput
 										style={Theme === "light" ? styles.input : styles.inputDark}
 										placeholder="example@mail.com"
-										placeholderTextColor="#94A3B8"
 										keyboardType="email-address"
 										autoCapitalize="none"
 										value={this.state.email}
@@ -126,7 +125,7 @@ export default class SignIn extends React.Component {
 								</View>
 
 								<View style={styles.inputWrapper}>
-									<Text style={styles.inputLabel}>Password</Text>
+									<Text style={Theme === "light" ? styles.inputLabel : styles.inputLabelDark}>Password</Text>
 									<View style={Theme==="light" ? styles.passwordContainer : styles.passwordContainerDark}>
 										<TextInput
 											style={[
@@ -134,7 +133,6 @@ export default class SignIn extends React.Component {
 												{ flex: 1, borderWidth: 0, height: '100%', marginBottom: 0, paddingHorizontal: 0 },
 											]}
 											placeholder="Enter your password"
-											placeholderTextColor="#94A3B8"
 											secureTextEntry={this.state.secureTextEntry}
 											autoCapitalize="none"
 											value={this.state.password}
@@ -261,10 +259,10 @@ const styles = StyleSheet.create({
 		color: '#1E293B',
 		marginBottom: 8,
 	},
-	inputLabel: {
+	inputLabelDark: {
 		fontSize: 14,
 		fontWeight: '600',
-		color: '#A5A5A5',
+		color: '#A0A0A0',
 		marginBottom: 8,
 	},
 	input: {
@@ -278,7 +276,7 @@ const styles = StyleSheet.create({
 		color: '#0F172A',
 	},
 	inputDark: {
-		backgroundColor: '#0b162e',
+		backgroundColor: '#b0bea0',
 		borderWidth: 1,
 		borderColor: '#E2E8F0',
 		borderRadius: 12,
@@ -301,7 +299,7 @@ const styles = StyleSheet.create({
 	passwordContainerDark: {
 		flexDirection: 'row',
 		alignItems: 'center',
-		backgroundColor: '#0b162e',
+		backgroundColor: '#b0bea0',
 		borderWidth: 1,
 		borderColor: '#E2E8F0',
 		borderRadius: 12,

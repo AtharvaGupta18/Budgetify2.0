@@ -89,14 +89,14 @@ export default class HomeScreen extends React.Component {
                         {/* QUICK ACTIONS */}
                         <Text style={Theme === "light" ? styles.sectionTitle : styles.sectionTitleDark}>Quick Actions</Text>
                         <View style={styles.actionsContainer}>
-                            <TouchableOpacity style={Theme === "light" ? styles.actionButton : styles.actionButtonDark}>
+                            <TouchableOpacity style={Theme === "light" ? styles.actionButton : styles.actionButtonDark} onPress={() => this.props.navigation.navigate('AddIncome')}>
                                 <View style={[styles.actionIconContainer, { backgroundColor: '#EBF7EE' }]}>
                                     <MaterialIcons name="move-to-inbox" size={24} color="#2BB673" />
                                 </View>
                                 <Text style={Theme === "light" ? styles.actionText : styles.actionTextDark}>Add Income</Text>
                             </TouchableOpacity>
 
-                            <TouchableOpacity style={Theme === "light" ? styles.actionButton : styles.actionButtonDark}>
+                            <TouchableOpacity style={Theme === "light" ? styles.actionButton : styles.actionButtonDark} onPress={() => this.props.navigation.navigate('AddExpense')}>
                                 <View style={[styles.actionIconContainer, { backgroundColor: '#FCECEC' }]}>
                                     <Ionicons name="trash-bin" size={24} color="#E74C3C" />
                                 </View>

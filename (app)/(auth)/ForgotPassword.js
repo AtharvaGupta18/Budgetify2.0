@@ -11,12 +11,12 @@ import {
     ScrollView,
     Alert,
     Image,
-    ActivityIndicator, 
+    ActivityIndicator,
     Appearance
 } from 'react-native';
 import { getAuth, sendPasswordResetEmail } from "firebase/auth";
 import { getDatabase, ref, onValue } from "firebase/database";
-import {SafeAreaView} from 'react-native-safe-area-context';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 let Theme;
 export default class ForgotPassword extends React.Component {
@@ -31,8 +31,8 @@ export default class ForgotPassword extends React.Component {
     async componentDidMount() {
         // Fetch the user's theme preference from the database and set it in the state
         Theme = await Appearance.getColorScheme();
-        if(Theme === "dark" || Theme === "light"){
-            this.setState({isThemeLoaded: true});
+        if (Theme === "dark" || Theme === "light") {
+            this.setState({ isThemeLoaded: true });
         }
     }
 
@@ -96,11 +96,10 @@ export default class ForgotPassword extends React.Component {
 
                             <View style={styles.formContainer}>
                                 <View style={styles.inputWrapper}>
-                                    <Text style={styles.inputLabel}>Email Address</Text>
+                                    <Text style={Theme === "light" ? styles.inputLabel : styles.inputLabelDark}>Email Address</Text>
                                     <TextInput
                                         style={Theme === "light" ? styles.input : styles.inputDark}
                                         placeholder="example@mail.com"
-                                        placeholderTextColor="#94A3B8"
                                         keyboardType="email-address"
                                         autoCapitalize="none"
                                         value={this.state.email}
@@ -195,6 +194,12 @@ const styles = StyleSheet.create({
         color: '#1E293B',
         marginBottom: 8,
     },
+    inputLabelDark: {
+        fontSize: 14,
+        fontWeight: '600',
+        color: '#A0A0A0',
+        marginBottom: 8,
+    },
     input: {
         backgroundColor: '#FFFFFF',
         borderWidth: 1,
@@ -206,7 +211,7 @@ const styles = StyleSheet.create({
         color: '#0F172A',
     },
     inputDark: {
-        backgroundColor: '#0b162e',
+        backgroundColor: '#b0bea0',
         borderWidth: 1,
         borderColor: '#1c293b',
         borderRadius: 12,
