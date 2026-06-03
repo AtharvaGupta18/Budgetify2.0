@@ -51,10 +51,10 @@ export default class AddIncomeScreen extends Component {
             }
         });
 
-        const month = this.state.date.getMonth();
+        const month = this.state.date.getMonth()+1;
         const year = this.state.date.getFullYear();
         const day = this.state.date.getDate();
-        const itemNoRef = await ref(db, "users/" + uid + "/incomes/" + month + "-" + year + "/" + day + "-" + month + "-" + year + "/itemNo");
+        const itemNoRef = await ref(db, "users/" + uid + "/transactions/" + "incomes/"+ month + "-" + year + "/" + day + "-" + month + "-" + year + "/itemNo");
         onValue(itemNoRef, (snapshot) => {
             if (snapshot.exists()) {
                 const itemNo = snapshot.val();
@@ -65,7 +65,7 @@ export default class AddIncomeScreen extends Component {
             }
         });
 
-        const totalIncomeRef = await ref(db, "users/" + uid + "/incomes/" + month + "-" + year + "/totalIncomes");
+        const totalIncomeRef = await ref(db, "users/" + uid + "/transactions/" + "incomes/"+ month + "-" + year + "/totalIncomes");
         onValue(totalIncomeRef, (snapshot) => {
             if (snapshot.exists()) {
                 const totalIncomes = snapshot.val();
@@ -116,16 +116,17 @@ export default class AddIncomeScreen extends Component {
                 return "payments";
         }
     }
+    
     async addIncome() {
         if (this.state.title !== "" && this.state.category !== "" && parseFloat(this.state.amount) > 0) {
             // Logic to add income to the database
             const uid = this.state.uid;
-            const month = this.state.date.getMonth();
+            const month = this.state.date.getMonth()+1;
             const year = this.state.date.getFullYear();
             const day = this.state.date.getDate();
             const db = getDatabase();
 
-            const incomesRef = ref(db, "users/" + uid + "/incomes/" + month + "-" + year + "/" + day + "-" + month + "-" + year + "/" + this.state.itemNo + "/");
+            const incomesRef = ref(db, "users/" + uid + "/transactions"+"/incomes/" + month + "-" + year + "/" + day + "-" + month + "-" + year + "/" + this.state.itemNo + "/");
             try {
                 set(incomesRef, {
                     category: this.state.category,
@@ -134,10 +135,10 @@ export default class AddIncomeScreen extends Component {
                     note: this.state.note,
                 });
 
-                const itemNoRef = await ref(db, "users/" + uid + "/incomes/" + month + "-" + year + "/" + day + "-" + month + "-" + year + "/itemNo");
+                const itemNoRef = await ref(db, "users/" + uid + "/transactions/" + "incomes/"+ month + "-" + year + "/" + day + "-" + month + "-" + year + "/itemNo");
                 set(itemNoRef, this.state.itemNo + 1);
 
-                const totalIncomeRef = await ref(db, "users/" + uid + "/incomes/" + month + "-" + year + "/totalIncomes");
+                const totalIncomeRef = await ref(db, "users/" + uid + "/transactions/" + "incomes/"+ month + "-" + year + "/totalIncomes");
                 set(totalIncomeRef, this.state.totalIncome + parseFloat(this.state.amount));
 
                 Alert.alert("Income added successfully!");
@@ -205,7 +206,7 @@ export default class AddIncomeScreen extends Component {
                             <Text style={Theme === "light" ? styles.label : styles.labelDark}>Title</Text>
                             <TextInput
                                 style={Theme === "light" ? styles.input : styles.inputDark}
-                                placeholder="Expenditure Title"
+                                placeholder="Income Title"
                                 placeholderTextColor={Theme === "dark" ? "#A0A0A0" : "#5A5A5A"}
                                 value={this.state.title}
                                 onChangeText={(title) => this.setState({ title })}

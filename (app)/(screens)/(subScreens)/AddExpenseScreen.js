@@ -51,10 +51,10 @@ export default class AddExpenseScreen extends Component {
             }
         });
 
-        const month = this.state.date.getMonth();
+        const month = this.state.date.getMonth()+1;
         const year = this.state.date.getFullYear();
         const day = this.state.date.getDate();
-        const itemNoRef = await ref(db, "users/" + uid + "/expenses/" + month + "-" + year + "/" + day + "-" + month + "-" + year + "/itemNo");
+        const itemNoRef = await ref(db, "users/" + uid + "/transactions/" + "expenses/"+ month + "-" + year + "/" + day + "-" + month + "-" + year + "/itemNo");
         onValue(itemNoRef, (snapshot) => {
             if (snapshot.exists()) {
                 const itemNo = snapshot.val();
@@ -65,7 +65,7 @@ export default class AddExpenseScreen extends Component {
             }
         });
 
-        const totalExpenseRef = await ref(db, "users/" + uid + "/expenses/" + month + "-" + year + "/totalExpenses");
+        const totalExpenseRef = await ref(db, "users/" + uid + "/transactions/" + "expenses/"+ month + "-" + year + "/totalExpenses");
         onValue(totalExpenseRef, (snapshot) => {
             if (snapshot.exists()) {
                 const totalExpenses = snapshot.val();
@@ -116,16 +116,17 @@ export default class AddExpenseScreen extends Component {
                 return "payments";
         }
     }
+
     async addExpense() {
         if (this.state.title !== "" && this.state.category !== "" && parseFloat(this.state.amount) > 0) {
             // Logic to add expense to the database
             const uid = this.state.uid;
-            const month = this.state.date.getMonth();
+            const month = this.state.date.getMonth()+1;
             const year = this.state.date.getFullYear();
             const day = this.state.date.getDate();
             const db = getDatabase();
 
-            const expensesRef = ref(db, "users/" + uid + "/expenses/" + month + "-" + year + "/" + day + "-" + month + "-" + year + "/" + this.state.itemNo + "/");
+            const expensesRef = ref(db, "users/" + uid + "/transactions"+"/expenses/" + month + "-" + year + "/" + day + "-" + month + "-" + year + "/" + this.state.itemNo + "/");
             try {
                 set(expensesRef, {
                     category: this.state.category,
@@ -134,10 +135,10 @@ export default class AddExpenseScreen extends Component {
                     note: this.state.note,
                 });
 
-                const itemNoRef = await ref(db, "users/" + uid + "/expenses/" + month + "-" + year + "/" + day + "-" + month + "-" + year + "/itemNo");
+                const itemNoRef = await ref(db, "users/" + uid + "/transactions/" + "expenses/"+ month + "-" + year + "/" + day + "-" + month + "-" + year + "/itemNo");
                 set(itemNoRef, this.state.itemNo + 1);
 
-                const totalExpenseRef = await ref(db, "users/" + uid + "/expenses/" + month + "-" + year + "/totalExpenses");
+                const totalExpenseRef = await ref(db, "users/" + uid + "/transactions/" + "expenses/"+ month + "-" + year + "/totalExpenses");
                 set(totalExpenseRef, this.state.totalExpense + parseFloat(this.state.amount));
 
                 Alert.alert("Expense added successfully!");

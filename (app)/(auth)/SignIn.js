@@ -44,11 +44,11 @@ export default class SignIn extends React.Component {
 			.then((userCredential) => {
 				const uid = userCredential.user.uid;
 				const db = getDatabase();
-				const month = this.state.date.getMonth();
+				const month = this.state.date.getMonth()+1;
 				const year = this.state.date.getFullYear();
 				const day = this.state.date.getDate();
 
-				const itemNoRefExpense = ref(db, "users/" + uid + "/expenses/" + month + "-" + year + "/" + day + "-" + month + "-" + year + "/itemNo");
+				const itemNoRefExpense = ref(db, "users/" + uid + "/transactions" + "/expenses/" + month + "-" + year + "/" + day + "-" + month + "-" + year + "/itemNo");
 				onValue(itemNoRefExpense, (snapshot) => {
 					if (snapshot.exists()) {
 						const itemNo = snapshot.val();
@@ -58,7 +58,7 @@ export default class SignIn extends React.Component {
 					}
 				});
 
-				const itemNoRefIncome = ref(db, "users/" + uid + "/incomes/" + month + "-" + year + "/" + day + "-" + month + "-" + year + "/itemNo");
+				const itemNoRefIncome = ref(db, "users/" + uid + "/transactions"+"/incomes/" + month + "-" + year + "/" + day + "-" + month + "-" + year + "/itemNo");
 				onValue(itemNoRefIncome, (snapshot) => {
 					if (snapshot.exists()) {
 						const itemNo = snapshot.val();

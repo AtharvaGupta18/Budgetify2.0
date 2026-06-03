@@ -3,15 +3,39 @@ import { View, Text, StyleSheet, TouchableOpacity, StatusBar, ActivityIndicator,
 import { getAuth } from "firebase/auth";
 import { getDatabase, ref, onValue } from "firebase/database";
 import { Ionicons } from '@expo/vector-icons';
-import {SafeAreaView} from 'react-native-safe-area-context';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import {Flatlist} from 'react-native-gesture-handler';
 
 let Theme;
 export default class TransactionScreen extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            isThemeLoaded: false
+            isThemeLoaded: false,
+            isDataLoaded: false,
+            date: new Date(),
+            data: null
         };
+    }
+
+    async loadData() {
+        const auth = getAuth();
+        const uid = auth.currentUser.uid;
+        const db = getDatabase();
+        const month = this.state.date.getMonth()+1;
+        const year = this.state.date.getFullYear();
+        const day = this.state.date.getDate();
+
+        const expensesRef = ref(db, "users/" + uid + "/transactions" + "/expenses/");
+        onValue(expensesRef, (snapshot)=>{
+            if (snapshot.exists()){
+                const data = snapshot.val();
+                this.setState({data: data, isDataLoaded: true})
+            }
+            else{
+                Alert.alert("Something went wrong while loading data. \n Please try again later.");
+            }
+        });
     }
 
     async componentDidMount() {
@@ -29,12 +53,13 @@ export default class TransactionScreen extends React.Component {
                 Alert.alert("No theme preference found in database.");
             }
         });
+        await this.loadData();
     }
 
     render() {
-        if (!this.state.isThemeLoaded) {
+        if (!this.state.isThemeLoaded && !this.state.isDataLoaded) {
             return (
-                <SafeAreaView style={styles.container}>
+                <SafeAreaView style={Theme === "light" ? styles.container : styles.containerDark}>
                     <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
                         <ActivityIndicator size="large" color="#2BB673" />
                     </View>
@@ -48,6 +73,9 @@ export default class TransactionScreen extends React.Component {
                         <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
                             <Text style={Theme === "light" ? styles.heading : styles.headingDark}>Transactions Screen</Text>
                         </View>
+
+
+
                     </ScrollView>
 
                     {/* BOTTOM NAVIGATION BAR */}
@@ -82,13 +110,11 @@ export default class TransactionScreen extends React.Component {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#FAFAFA',
-        marginTop: StatusBar.currentHeight
+        backgroundColor: '#FAFAFA'
     },
     containerDark: {
         flex: 1,
-        backgroundColor: '#050C1C',
-        marginTop: StatusBar.currentHeight
+        backgroundColor: '#050C1C'
     },
     scrollContent: {
         paddingHorizontal: 10,
