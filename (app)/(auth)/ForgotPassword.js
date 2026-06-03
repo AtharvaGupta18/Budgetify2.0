@@ -100,6 +100,7 @@ export default class ForgotPassword extends React.Component {
                                     <TextInput
                                         style={Theme === "light" ? styles.input : styles.inputDark}
                                         placeholder="example@mail.com"
+                                        placeholderTextColor={Theme === "dark" ? "#A0A0A0" : "#5A5A5A"}
                                         keyboardType="email-address"
                                         autoCapitalize="none"
                                         value={this.state.email}
@@ -211,14 +212,14 @@ const styles = StyleSheet.create({
         color: '#0F172A',
     },
     inputDark: {
-        backgroundColor: '#b0bea0',
+        backgroundColor: '#0F172A',
         borderWidth: 1,
         borderColor: '#1c293b',
         borderRadius: 12,
         paddingHorizontal: 16,
         height: 54,
         fontSize: 15,
-        color: '#0F172A',
+        color: '#A0A0A0',
     },
     toggleButton: {
         justifyContent: 'center',

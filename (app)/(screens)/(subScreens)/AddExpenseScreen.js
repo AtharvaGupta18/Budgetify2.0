@@ -8,11 +8,13 @@ import {
     ScrollView,
     ActivityIndicator,
     Alert,
+    KeyboardAvoidingView,
+    Platform,
 } from "react-native";
 import { Picker } from "@react-native-picker/picker";
 import { MaterialIcons } from "@expo/vector-icons";
 import { getAuth } from "firebase/auth";
-import { getDatabase, ref, onValue } from "firebase/database";
+import { getDatabase, ref, onValue, set } from "firebase/database";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 let Theme;
@@ -22,10 +24,13 @@ export default class AddExpenseScreen extends Component {
         this.state = {
             title: "",
             amount: "",
-            category: "Groceries",
+            category: "payments",
             note: "",
             date: new Date(),
             isThemeLoaded: false,
+            uid: '',
+            itemNo: 0,
+            totalExpense: 0,
         };
     }
 
@@ -33,6 +38,7 @@ export default class AddExpenseScreen extends Component {
         // Fetch the user's theme preference from the database and set it in the state
         const auth = getAuth();
         const uid = auth.currentUser.uid;
+        this.setState({ uid: uid });
         const db = getDatabase();
         const themeRef = await ref(db, "users/" + uid + "/theme");
         onValue(themeRef, (snapshot) => {
@@ -44,9 +50,33 @@ export default class AddExpenseScreen extends Component {
                 Alert.alert("No theme preference found in database.");
             }
         });
+
+        const month = this.state.date.getMonth();
+        const year = this.state.date.getFullYear();
+        const day = this.state.date.getDate();
+        const itemNoRef = await ref(db, "users/" + uid + "/expenses/" + month + "-" + year + "/" + day + "-" + month + "-" + year + "/itemNo");
+        onValue(itemNoRef, (snapshot) => {
+            if (snapshot.exists()) {
+                const itemNo = snapshot.val();
+                this.setState({ itemNo: itemNo });
+            }
+            else {
+                Alert.alert("Something went wrong");
+            }
+        });
+
+        const totalExpenseRef = await ref(db, "users/" + uid + "/expenses/" + month + "-" + year + "/totalExpenses");
+        onValue(totalExpenseRef, (snapshot) => {
+            if (snapshot.exists()) {
+                const totalExpenses = snapshot.val();
+                set(totalExpenseRef, totalExpenses);
+                this.setState({ totalExpense: totalExpenses });
+            } else {
+                set(totalExpenseRef, 0);
+            }
+        });
+
     }
-
-
     getCategoryIcon() {
         switch (this.state.category) {
             case "Groceries":
@@ -62,16 +92,62 @@ export default class AddExpenseScreen extends Component {
                 return "home";
 
             case "Health":
-                return "favorite";
+                return "medical-information";
 
             case "Entertainment":
                 return "movie";
 
             case "Utilities":
-                return "electric-bolt";
+                return "receipt";
+
+            case "Education":
+                return "school";
+
+            case "Shopping":
+                return "local-mall";
+
+            case "Travel":
+                return "flight";
+
+            case "Kids":
+                return "child-care";
 
             default:
                 return "payments";
+        }
+    }
+    async addExpense() {
+        if (this.state.title !== "" && this.state.category !== "" && parseFloat(this.state.amount) > 0) {
+            // Logic to add expense to the database
+            const uid = this.state.uid;
+            const month = this.state.date.getMonth();
+            const year = this.state.date.getFullYear();
+            const day = this.state.date.getDate();
+            const db = getDatabase();
+
+            const expensesRef = ref(db, "users/" + uid + "/expenses/" + month + "-" + year + "/" + day + "-" + month + "-" + year + "/" + this.state.itemNo + "/");
+            try {
+                set(expensesRef, {
+                    category: this.state.category,
+                    title: this.state.title,
+                    amount: parseFloat(this.state.amount),
+                    note: this.state.note,
+                });
+
+                const itemNoRef = await ref(db, "users/" + uid + "/expenses/" + month + "-" + year + "/" + day + "-" + month + "-" + year + "/itemNo");
+                set(itemNoRef, this.state.itemNo + 1);
+
+                const totalExpenseRef = await ref(db, "users/" + uid + "/expenses/" + month + "-" + year + "/totalExpenses");
+                set(totalExpenseRef, this.state.totalExpense + parseFloat(this.state.amount));
+
+                Alert.alert("Expense added successfully!");
+            }
+            catch (error) {
+                Alert.alert("Error adding expense \n", error.message);
+            }
+        }
+        else {
+            Alert.alert("Please fill in all the required fields!!.");
         }
     }
 
@@ -88,66 +164,77 @@ export default class AddExpenseScreen extends Component {
         else {
             return (
                 <SafeAreaView style={Theme === "light" ? styles.container : styles.containerDark}>
-                    <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ padding: 20 }}>
-                        <Text style={Theme === "light" ? styles.header : styles.headerDark}>Add Expense</Text>
-                        <View style={styles.iconContainer}>
-                            <MaterialIcons
-                                name={this.getCategoryIcon()}
-                                size={55}
-                                color="#E45B5B"
-                            />
-                        </View>
-
-                        <Text style={Theme === "light" ? styles.label : styles.labelDark}>Category</Text>
-                        <View style={styles.pickerContainer}>
-                            <Picker
-                                selectedValue={this.state.category}
-                                onValueChange={(category) =>
-                                    this.setState({ category })
-                                }
-                            >
-                                <Picker.Item label="Groceries" value="Groceries" />
-                                <Picker.Item label="Food" value="Food" />
-                                <Picker.Item label="Transport" value="Transport" />
-                                <Picker.Item label="Rent" value="Rent" />
-                                <Picker.Item label="Health" value="Health" />
-                                <Picker.Item
-                                    label="Entertainment"
-                                    value="Entertainment"
+                    <KeyboardAvoidingView
+                        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+                        style={{ flex: 1 }}
+                    >
+                        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ padding: 20 }}>
+                            <Text style={Theme === "light" ? styles.header : styles.headerDark}>Add Expense</Text>
+                            <View style={styles.iconContainer}>
+                                <MaterialIcons
+                                    name={this.getCategoryIcon()}
+                                    size={55}
+                                    color="#E45B5B"
                                 />
-                                <Picker.Item label="Utilities" value="Utilities" />
-                            </Picker>
-                        </View>
+                            </View>
 
-                        <Text style={Theme === "light" ? styles.label : styles.labelDark}>Title</Text>
-                        <TextInput
-                            style={Theme === "light" ? styles.input : styles.inputDark}
-                            placeholder="Expenditure Title"
-                            value={this.state.title}
-                            onChangeText={(title) => this.setState({ title })}
-                        />
+                            <Text style={Theme === "light" ? styles.label : styles.labelDark}>Category</Text>
+                            <View style={styles.pickerContainer}>
+                                <Picker
+                                    selectedValue={this.state.category}
+                                    onValueChange={(category) =>
+                                        this.setState({ category })
+                                    }
+                                >
+                                    <Picker.Item label="Payments" value="payments" />
+                                    <Picker.Item label="Education" value="Education" />
+                                    <Picker.Item label="Entertainment" value="Entertainment" />
+                                    <Picker.Item label="Food" value="Food" />
+                                    <Picker.Item label="Groceries" value="Groceries" />
+                                    <Picker.Item label="Health" value="Health" />
+                                    <Picker.Item label="Kids" value="Kids" />
+                                    <Picker.Item label="Rent" value="Rent" />
+                                    <Picker.Item label="Shopping" value="Shopping" />
+                                    <Picker.Item label="Transport" value="Transport" />
+                                    <Picker.Item label="Travel or Vacation" value="Travel" />
+                                    <Picker.Item label="Utilities" value="Utilities" />
 
-                        <Text style={Theme === "light" ? styles.label : styles.labelDark}>Amount</Text>
-                        <TextInput
-                            style={Theme === "light" ? styles.input : styles.inputDark}
-                            placeholder="1250"
-                            keyboardType="numeric"
-                            value={this.state.amount}
-                            onChangeText={(amount) => this.setState({ amount })}
-                        />
+                                </Picker>
+                            </View>
 
-                        <Text style={Theme === "light" ? styles.label : styles.labelDark}>Note (Optional)</Text>
-                        <TextInput
-                            style={Theme === "light" ? styles.input : styles.inputDark}
-                            placeholder="Monthly groceries"
-                            value={this.state.note}
-                            onChangeText={(note) => this.setState({ note })}
-                        />
+                            <Text style={Theme === "light" ? styles.label : styles.labelDark}>Title</Text>
+                            <TextInput
+                                style={Theme === "light" ? styles.input : styles.inputDark}
+                                placeholder="Expenditure Title"
+                                placeholderTextColor={Theme === "dark" ? "#A0A0A0" : "#5A5A5A"}
+                                value={this.state.title}
+                                onChangeText={(title) => this.setState({ title })}
+                            />
 
-                        <TouchableOpacity style={styles.button}>
-                            <Text style={styles.buttonText}>Add Expense</Text>
-                        </TouchableOpacity>
-                    </ScrollView>
+                            <Text style={Theme === "light" ? styles.label : styles.labelDark}>Amount</Text>
+                            <TextInput
+                                style={Theme === "light" ? styles.input : styles.inputDark}
+                                placeholder="Amount"
+                                placeholderTextColor={Theme === "dark" ? "#A0A0A0" : "#5A5A5A"}
+                                keyboardType="numeric"
+                                value={this.state.amount}
+                                onChangeText={(amount) => this.setState({ amount })}
+                            />
+
+                            <Text style={Theme === "light" ? styles.label : styles.labelDark}>Note (Optional)</Text>
+                            <TextInput
+                                style={Theme === "light" ? styles.input : styles.inputDark}
+                                placeholder="Add a note for your reference"
+                                placeholderTextColor={Theme === "dark" ? "#A0A0A0" : "#5A5A5A"}
+                                value={this.state.note}
+                                onChangeText={(note) => this.setState({ note })}
+                            />
+
+                            <TouchableOpacity style={styles.button} onPress={() => this.addExpense()}>
+                                <Text style={styles.buttonText}>Add Expense</Text>
+                            </TouchableOpacity>
+                        </ScrollView>
+                    </KeyboardAvoidingView>
                 </SafeAreaView>
             );
         }
@@ -194,42 +281,42 @@ const styles = StyleSheet.create({
         fontWeight: '700',
         color: '#2C3E50',
         marginBottom: 5,
-        marginTop: 10,
+        marginTop: 18,
     },
     labelDark: {
         fontSize: 16,
         fontWeight: '700',
         color: "#A0A0A0",
         marginBottom: 5,
-        marginTop: 10,
+        marginTop: 18,
     },
     input: {
-		backgroundColor: '#FFFFFF',
-		borderWidth: 1,
-		borderColor: '#E2E8F0',
-		borderRadius: 12,
-		paddingHorizontal: 16,
-		height: 54,
-		fontSize: 16,
-		color: '#0F172A',
-	},
-	inputDark: {
-		backgroundColor: '#b0bea0',
-		borderWidth: 1,
-		borderColor: '#E2E8F0',
-		borderRadius: 12,
-		paddingHorizontal: 16,
-		height: 54,
-		fontSize: 16,
-		color: '#A0A0A0',
-	},
+        backgroundColor: '#FFFFFF',
+        borderWidth: 1,
+        borderColor: '#E2E8F0',
+        borderRadius: 12,
+        paddingHorizontal: 16,
+        height: 54,
+        fontSize: 16,
+        color: '#0F172A',
+    },
+    inputDark: {
+        backgroundColor: '#0F172A',
+        borderWidth: 1,
+        borderColor: '#E2E8F0',
+        borderRadius: 12,
+        paddingHorizontal: 16,
+        height: 54,
+        fontSize: 16,
+        color: '#A0A0A0',
+    },
 
     pickerContainer: {
         borderWidth: 1,
         borderColor: "#E5E7EB",
         borderRadius: 12,
         overflow: "hidden",
-        backgroundColor:"#b0bea0"
+        backgroundColor: "#8895b4",
     },
 
     button: {
@@ -243,7 +330,7 @@ const styles = StyleSheet.create({
         borderRadius: 14,
         justifyContent: "center",
         alignItems: "center",
-        marginTop: 20,
+        marginTop: 50,
     },
 
     buttonText: {

@@ -136,6 +136,7 @@ export default class SignUp extends React.Component {
                                     <TextInput
                                         style={Theme === "light" ? styles.input : styles.inputDark}
                                         placeholder="Enter your name"
+                                        placeholderTextColor={Theme === "dark" ? "#A0A0A0" : "#5A5A5A"}
                                         keyboardType="default"
                                         value={this.state.name}
                                         onChangeText={(text) => this.setState({ name: text })}
@@ -147,6 +148,7 @@ export default class SignUp extends React.Component {
                                     <TextInput
                                         style={Theme === "light" ? styles.input : styles.inputDark}
                                         placeholder="example@mail.com"
+                                        placeholderTextColor={Theme === "dark" ? "#A0A0A0" : "#5A5A5A"}
                                         keyboardType="email-address"
                                         autoCapitalize="none"
                                         value={this.state.email}
@@ -163,6 +165,7 @@ export default class SignUp extends React.Component {
                                                 { flex: 1, borderWidth: 0, height: '100%', marginBottom: 0, paddingHorizontal: 0 },
                                             ]}
                                             placeholder="Enter your password"
+                                            placeholderTextColor={Theme === "dark" ? "#A0A0A0" : "#5A5A5A"}
                                             secureTextEntry={this.state.secureTextEntry}
                                             autoCapitalize="none"
                                             value={this.state.password}
@@ -188,6 +191,7 @@ export default class SignUp extends React.Component {
                                                 { flex: 1, borderWidth: 0, height: '100%', marginBottom: 0, paddingHorizontal: 0 },
                                             ]}
                                             placeholder="Confirm your password"
+                                            placeholderTextColor={Theme === "dark" ? "#A0A0A0" : "#5A5A5A"}
                                             secureTextEntry={this.state.secureTextEntryConfirm}
                                             autoCapitalize="none"
                                             value={this.state.confirmPassword}
@@ -324,14 +328,14 @@ const styles = StyleSheet.create({
         color: '#0F172A',
     },
     inputDark: {
-        backgroundColor: '#b0bea0',
+        backgroundColor: '#0F172A',
         borderWidth: 1,
         borderColor: '#E2E8F0',
         borderRadius: 12,
         paddingHorizontal: 16,
         height: 54,
         fontSize: 15,
-        color: '#0F172A',
+        color: '#A0A0A0',
     },
     passwordContainer: {
         flexDirection: 'row',
@@ -347,7 +351,7 @@ const styles = StyleSheet.create({
     passwordContainerDark: {
 		flexDirection: 'row',
 		alignItems: 'center',
-		backgroundColor: '#b0bea0',
+		backgroundColor: '#0F172A',
 		borderWidth: 1,
 		borderColor: '#E2E8F0',
 		borderRadius: 12,

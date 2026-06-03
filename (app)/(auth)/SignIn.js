@@ -16,8 +16,8 @@ import {
 	Appearance
 } from 'react-native';
 import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
-import { getDatabase, ref, set } from 'firebase/database';
-import {SafeAreaView} from 'react-native-safe-area-context';
+import { getDatabase, ref, set, onValue } from 'firebase/database';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 let Theme;
 export default class SignIn extends React.Component {
@@ -28,6 +28,7 @@ export default class SignIn extends React.Component {
 			password: '',
 			secureTextEntry: true,
 			isThemeLoaded: false,
+			date: new Date(),
 		};
 	}
 
@@ -43,13 +44,29 @@ export default class SignIn extends React.Component {
 			.then((userCredential) => {
 				const uid = userCredential.user.uid;
 				const db = getDatabase();
-				// const themeRef = ref(db, "users/" + uid + "/theme");
-				// try {
-				// 	set(themeRef, theme);
-				// }
-				// catch (error) {
-				// 	Alert.alert("Something went wrong", error.message);
-				// }
+				const month = this.state.date.getMonth();
+				const year = this.state.date.getFullYear();
+				const day = this.state.date.getDate();
+
+				const itemNoRefExpense = ref(db, "users/" + uid + "/expenses/" + month + "-" + year + "/" + day + "-" + month + "-" + year + "/itemNo");
+				onValue(itemNoRefExpense, (snapshot) => {
+					if (snapshot.exists()) {
+						const itemNo = snapshot.val();
+					}
+					else {
+						set(itemNoRefExpense, 0);
+					}
+				});
+
+				const itemNoRefIncome = ref(db, "users/" + uid + "/incomes/" + month + "-" + year + "/" + day + "-" + month + "-" + year + "/itemNo");
+				onValue(itemNoRefIncome, (snapshot) => {
+					if (snapshot.exists()) {
+						const itemNo = snapshot.val();
+					}
+					else {
+						set(itemNoRefIncome, 0);
+					}
+				});
 
 				this.props.navigation.replace('Home');
 				ToastAndroid.show('Login successful', ToastAndroid.SHORT);
@@ -117,6 +134,7 @@ export default class SignIn extends React.Component {
 									<TextInput
 										style={Theme === "light" ? styles.input : styles.inputDark}
 										placeholder="example@mail.com"
+										placeholderTextColor={Theme === "dark" ? "#A0A0A0" : "#5A5A5A"}
 										keyboardType="email-address"
 										autoCapitalize="none"
 										value={this.state.email}
@@ -126,13 +144,14 @@ export default class SignIn extends React.Component {
 
 								<View style={styles.inputWrapper}>
 									<Text style={Theme === "light" ? styles.inputLabel : styles.inputLabelDark}>Password</Text>
-									<View style={Theme==="light" ? styles.passwordContainer : styles.passwordContainerDark}>
+									<View style={Theme === "light" ? styles.passwordContainer : styles.passwordContainerDark}>
 										<TextInput
 											style={[
 												Theme === "light" ? styles.input : styles.inputDark,
 												{ flex: 1, borderWidth: 0, height: '100%', marginBottom: 0, paddingHorizontal: 0 },
 											]}
 											placeholder="Enter your password"
+											placeholderTextColor={Theme === "dark" ? "#A0A0A0" : "#5A5A5A"}
 											secureTextEntry={this.state.secureTextEntry}
 											autoCapitalize="none"
 											value={this.state.password}
@@ -276,14 +295,14 @@ const styles = StyleSheet.create({
 		color: '#0F172A',
 	},
 	inputDark: {
-		backgroundColor: '#b0bea0',
+		backgroundColor: '#0F172A',
 		borderWidth: 1,
 		borderColor: '#E2E8F0',
 		borderRadius: 12,
 		paddingHorizontal: 16,
 		height: 54,
 		fontSize: 15,
-		color: '#0F172A',
+		color: '#A0A0A0',
 	},
 	passwordContainer: {
 		flexDirection: 'row',
@@ -299,7 +318,7 @@ const styles = StyleSheet.create({
 	passwordContainerDark: {
 		flexDirection: 'row',
 		alignItems: 'center',
-		backgroundColor: '#b0bea0',
+		backgroundColor: '#0F172A',
 		borderWidth: 1,
 		borderColor: '#E2E8F0',
 		borderRadius: 12,

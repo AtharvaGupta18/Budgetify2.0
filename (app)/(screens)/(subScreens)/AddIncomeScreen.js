@@ -1,16 +1,36 @@
-import * as React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, StatusBar, ActivityIndicator, ScrollView } from 'react-native';
+import React, { Component } from "react";
+import {
+    View,
+    Text,
+    StyleSheet,
+    TextInput,
+    TouchableOpacity,
+    ScrollView,
+    ActivityIndicator,
+    Alert,
+    KeyboardAvoidingView,
+    Platform,
+} from "react-native";
+import { Picker } from "@react-native-picker/picker";
+import { MaterialIcons } from "@expo/vector-icons";
 import { getAuth } from "firebase/auth";
-import { getDatabase, ref, onValue } from "firebase/database";
-import { Ionicons, MaterialIcons } from '@expo/vector-icons';
-import {SafeAreaView} from 'react-native-safe-area-context';
+import { getDatabase, ref, onValue, set } from "firebase/database";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 let Theme;
-export default class AddIncomeScreen extends React.Component {
+export default class AddIncomeScreen extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            isThemeLoaded: false
+            title: "",
+            amount: "",
+            category: "payments",
+            note: "",
+            date: new Date(),
+            isThemeLoaded: false,
+            uid: '',
+            itemNo: 0,
+            totalIncome: 0,
         };
     }
 
@@ -18,6 +38,7 @@ export default class AddIncomeScreen extends React.Component {
         // Fetch the user's theme preference from the database and set it in the state
         const auth = getAuth();
         const uid = auth.currentUser.uid;
+        this.setState({ uid: uid });
         const db = getDatabase();
         const themeRef = await ref(db, "users/" + uid + "/theme");
         onValue(themeRef, (snapshot) => {
@@ -29,6 +50,105 @@ export default class AddIncomeScreen extends React.Component {
                 Alert.alert("No theme preference found in database.");
             }
         });
+
+        const month = this.state.date.getMonth();
+        const year = this.state.date.getFullYear();
+        const day = this.state.date.getDate();
+        const itemNoRef = await ref(db, "users/" + uid + "/incomes/" + month + "-" + year + "/" + day + "-" + month + "-" + year + "/itemNo");
+        onValue(itemNoRef, (snapshot) => {
+            if (snapshot.exists()) {
+                const itemNo = snapshot.val();
+                this.setState({ itemNo: itemNo });
+            }
+            else {
+                Alert.alert("Something went wrong");
+            }
+        });
+
+        const totalIncomeRef = await ref(db, "users/" + uid + "/incomes/" + month + "-" + year + "/totalIncomes");
+        onValue(totalIncomeRef, (snapshot) => {
+            if (snapshot.exists()) {
+                const totalIncomes = snapshot.val();
+                set(totalIncomeRef, totalIncomes);
+                this.setState({ totalIncome: totalIncomes });
+            } else {
+                set(totalIncomeRef, 0);
+            }
+        });
+
+    }
+    getCategoryIcon() {
+        switch (this.state.category) {
+            case "Groceries":
+                return "shopping-cart";
+
+            case "Food":
+                return "restaurant";
+
+            case "Transport":
+                return "directions-car";
+
+            case "Rent":
+                return "home";
+
+            case "Health":
+                return "medical-information";
+
+            case "Entertainment":
+                return "movie";
+
+            case "Utilities":
+                return "receipt";
+
+            case "Education":
+                return "school";
+
+            case "Shopping":
+                return "local-mall";
+
+            case "Travel":
+                return "flight";
+
+            case "Kids":
+                return "child-care";
+
+            default:
+                return "payments";
+        }
+    }
+    async addIncome() {
+        if (this.state.title !== "" && this.state.category !== "" && parseFloat(this.state.amount) > 0) {
+            // Logic to add income to the database
+            const uid = this.state.uid;
+            const month = this.state.date.getMonth();
+            const year = this.state.date.getFullYear();
+            const day = this.state.date.getDate();
+            const db = getDatabase();
+
+            const incomesRef = ref(db, "users/" + uid + "/incomes/" + month + "-" + year + "/" + day + "-" + month + "-" + year + "/" + this.state.itemNo + "/");
+            try {
+                set(incomesRef, {
+                    category: this.state.category,
+                    title: this.state.title,
+                    amount: parseFloat(this.state.amount),
+                    note: this.state.note,
+                });
+
+                const itemNoRef = await ref(db, "users/" + uid + "/incomes/" + month + "-" + year + "/" + day + "-" + month + "-" + year + "/itemNo");
+                set(itemNoRef, this.state.itemNo + 1);
+
+                const totalIncomeRef = await ref(db, "users/" + uid + "/incomes/" + month + "-" + year + "/totalIncomes");
+                set(totalIncomeRef, this.state.totalIncome + parseFloat(this.state.amount));
+
+                Alert.alert("Income added successfully!");
+            }
+            catch (error) {
+                Alert.alert("Error adding income \n", error.message);
+            }
+        }
+        else {
+            Alert.alert("Please fill in all the required fields!!.");
+        }
     }
 
     render() {
@@ -44,12 +164,77 @@ export default class AddIncomeScreen extends React.Component {
         else {
             return (
                 <SafeAreaView style={Theme === "light" ? styles.container : styles.containerDark}>
-                    <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
-                        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-                            <Text style={Theme === "light" ? styles.heading : styles.headingDark}>Add Income Screen</Text>
-                        </View>
-                    </ScrollView>
+                    <KeyboardAvoidingView
+                        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+                        style={{ flex: 1 }}
+                    >
+                        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ padding: 20 }}>
+                            <Text style={Theme === "light" ? styles.header : styles.headerDark}>Add Income</Text>
+                            <View style={styles.iconContainer}>
+                                <MaterialIcons
+                                    name={this.getCategoryIcon()}
+                                    size={55}
+                                    color="#E45B5B"
+                                />
+                            </View>
 
+                            <Text style={Theme === "light" ? styles.label : styles.labelDark}>Category</Text>
+                            <View style={styles.pickerContainer}>
+                                <Picker
+                                    selectedValue={this.state.category}
+                                    onValueChange={(category) =>
+                                        this.setState({ category })
+                                    }
+                                >
+                                    <Picker.Item label="Payments" value="payments" />
+                                    <Picker.Item label="Education" value="Education" />
+                                    <Picker.Item label="Entertainment" value="Entertainment" />
+                                    <Picker.Item label="Food" value="Food" />
+                                    <Picker.Item label="Groceries" value="Groceries" />
+                                    <Picker.Item label="Health" value="Health" />
+                                    <Picker.Item label="Kids" value="Kids" />
+                                    <Picker.Item label="Rent" value="Rent" />
+                                    <Picker.Item label="Shopping" value="Shopping" />
+                                    <Picker.Item label="Transport" value="Transport" />
+                                    <Picker.Item label="Travel or Vacation" value="Travel" />
+                                    <Picker.Item label="Utilities" value="Utilities" />
+
+                                </Picker>
+                            </View>
+
+                            <Text style={Theme === "light" ? styles.label : styles.labelDark}>Title</Text>
+                            <TextInput
+                                style={Theme === "light" ? styles.input : styles.inputDark}
+                                placeholder="Expenditure Title"
+                                placeholderTextColor={Theme === "dark" ? "#A0A0A0" : "#5A5A5A"}
+                                value={this.state.title}
+                                onChangeText={(title) => this.setState({ title })}
+                            />
+
+                            <Text style={Theme === "light" ? styles.label : styles.labelDark}>Amount</Text>
+                            <TextInput
+                                style={Theme === "light" ? styles.input : styles.inputDark}
+                                placeholder="Amount"
+                                placeholderTextColor={Theme === "dark" ? "#A0A0A0" : "#5A5A5A"}
+                                keyboardType="numeric"
+                                value={this.state.amount}
+                                onChangeText={(amount) => this.setState({ amount })}
+                            />
+
+                            <Text style={Theme === "light" ? styles.label : styles.labelDark}>Note (Optional)</Text>
+                            <TextInput
+                                style={Theme === "light" ? styles.input : styles.inputDark}
+                                placeholder="Add a note for your reference"
+                                placeholderTextColor={Theme === "dark" ? "#A0A0A0" : "#5A5A5A"}
+                                value={this.state.note}
+                                onChangeText={(note) => this.setState({ note })}
+                            />
+
+                            <TouchableOpacity style={styles.button} onPress={() => this.addIncome()}>
+                                <Text style={styles.buttonText}>Add Income</Text>
+                            </TouchableOpacity>
+                        </ScrollView>
+                    </KeyboardAvoidingView>
                 </SafeAreaView>
             );
         }
@@ -59,28 +244,98 @@ export default class AddIncomeScreen extends React.Component {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#FAFAFA'
+        backgroundColor: "#FAFAFA"
     },
     containerDark: {
         flex: 1,
-        backgroundColor: '#050C1C'
+        backgroundColor: "#050C1C"
     },
-    scrollContent: {
-        paddingHorizontal: 10,
-        paddingBottom: 100, // Space for bottom navigation
-    },
-    heading: {
-        marginTop: StatusBar.currentHeight,
-        fontSize: 32,
+    header: {
+        fontSize: 26,
         fontWeight: "600",
-        marginBottom: 20,
-        color: "#111827",
+        textAlign: "center",
+        color: '#2C3E50',
+        marginBottom: 30,
     },
-    headingDark: {
-        marginTop: StatusBar.currentHeight,
-        fontSize: 32,
+    headerDark: {
+        fontSize: 26,
         fontWeight: "600",
-        marginBottom: 20,
-        color: "#FAFAFA",
-    }
+        textAlign: "center",
+        color: '#A0A0A0',
+        marginBottom: 30,
+    },
+
+    iconContainer: {
+        width: 120,
+        height: 120,
+        borderRadius: 60,
+        backgroundColor: "#FDEAEA",
+        justifyContent: "center",
+        alignItems: "center",
+        alignSelf: "center",
+        marginBottom: 30,
+    },
+
+    label: {
+        fontSize: 16,
+        fontWeight: '700',
+        color: '#2C3E50',
+        marginBottom: 5,
+        marginTop: 18,
+    },
+    labelDark: {
+        fontSize: 16,
+        fontWeight: '700',
+        color: "#A0A0A0",
+        marginBottom: 5,
+        marginTop: 18,
+    },
+    input: {
+        backgroundColor: '#FFFFFF',
+        borderWidth: 1,
+        borderColor: '#E2E8F0',
+        borderRadius: 12,
+        paddingHorizontal: 16,
+        height: 54,
+        fontSize: 16,
+        color: '#0F172A',
+    },
+    inputDark: {
+        backgroundColor: '#0F172A',
+        borderWidth: 1,
+        borderColor: '#E2E8F0',
+        borderRadius: 12,
+        paddingHorizontal: 16,
+        height: 54,
+        fontSize: 16,
+        color: '#A0A0A0',
+    },
+
+    pickerContainer: {
+        borderWidth: 1,
+        borderColor: "#E5E7EB",
+        borderRadius: 12,
+        overflow: "hidden",
+        backgroundColor: "#8895b4",
+    },
+
+    button: {
+        height: 55,
+        backgroundColor: "#22A467",
+        shadowColor: "#22A467",
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.15,
+        shadowRadius: 8,
+        elevation: 4,
+        borderRadius: 14,
+        justifyContent: "center",
+        alignItems: "center",
+        marginTop: 50,
+    },
+
+    buttonText: {
+        color: "#FFF",
+        fontSize: 18,
+        fontWeight: "550",
+    },
 });
