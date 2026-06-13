@@ -54,7 +54,7 @@ export default class AddExpenseScreen extends Component {
         const month = this.state.date.getMonth()+1;
         const year = this.state.date.getFullYear();
         const day = this.state.date.getDate();
-        const itemNoRef = await ref(db, "users/" + uid + "/transactions/" + "expenses/"+ month + "-" + year + "/" + day + "-" + month + "-" + year + "/itemNo");
+        const itemNoRef = await ref(db, "users/" + uid + "/transactions" + "/itemNo");
         onValue(itemNoRef, (snapshot) => {
             if (snapshot.exists()) {
                 const itemNo = snapshot.val();
@@ -65,7 +65,7 @@ export default class AddExpenseScreen extends Component {
             }
         });
 
-        const totalExpenseRef = await ref(db, "users/" + uid + "/transactions/" + "expenses/"+ month + "-" + year + "/totalExpenses");
+        const totalExpenseRef = await ref(db, "users/" + uid + "/transactions" + "/totalExpenses");
         onValue(totalExpenseRef, (snapshot) => {
             if (snapshot.exists()) {
                 const totalExpenses = snapshot.val();
@@ -77,6 +77,7 @@ export default class AddExpenseScreen extends Component {
         });
 
     }
+
     getCategoryIcon() {
         switch (this.state.category) {
             case "Groceries":
@@ -126,19 +127,20 @@ export default class AddExpenseScreen extends Component {
             const day = this.state.date.getDate();
             const db = getDatabase();
 
-            const expensesRef = ref(db, "users/" + uid + "/transactions"+"/expenses/" + month + "-" + year + "/" + day + "-" + month + "-" + year + "/" + this.state.itemNo + "/");
+            const expensesRef = ref(db, "users/" + uid + "/transactions" + "/" + this.state.itemNo + "/");
             try {
                 set(expensesRef, {
                     category: this.state.category,
                     title: this.state.title,
                     amount: parseFloat(this.state.amount),
                     note: this.state.note,
+                    type: "expense",
                 });
 
-                const itemNoRef = await ref(db, "users/" + uid + "/transactions/" + "expenses/"+ month + "-" + year + "/" + day + "-" + month + "-" + year + "/itemNo");
+                const itemNoRef = await ref(db, "users/" + uid + "/transactions" + "/itemNo");
                 set(itemNoRef, this.state.itemNo + 1);
 
-                const totalExpenseRef = await ref(db, "users/" + uid + "/transactions/" + "expenses/"+ month + "-" + year + "/totalExpenses");
+                const totalExpenseRef = await ref(db, "users/" + uid + "/transactions" + "/totalExpenses");
                 set(totalExpenseRef, this.state.totalExpense + parseFloat(this.state.amount));
 
                 Alert.alert("Expense added successfully!");
@@ -148,7 +150,7 @@ export default class AddExpenseScreen extends Component {
             }
         }
         else {
-            Alert.alert("Please fill in all the required fields!!.");
+            Alert.alert("Please fill in all the required fields!!!.");
         }
     }
 

@@ -48,25 +48,25 @@ export default class SignIn extends React.Component {
 				const year = this.state.date.getFullYear();
 				const day = this.state.date.getDate();
 
-				const itemNoRefExpense = ref(db, "users/" + uid + "/transactions" + "/expenses/" + month + "-" + year + "/" + day + "-" + month + "-" + year + "/itemNo");
-				onValue(itemNoRefExpense, (snapshot) => {
+				const itemNoRef = ref(db, "users/" + uid + "/transactions" + "/itemNo");
+				onValue(itemNoRef, (snapshot) => {
 					if (snapshot.exists()) {
 						const itemNo = snapshot.val();
 					}
 					else {
-						set(itemNoRefExpense, 0);
+						set(itemNoRef, 0);
 					}
 				});
 
-				const itemNoRefIncome = ref(db, "users/" + uid + "/transactions"+"/incomes/" + month + "-" + year + "/" + day + "-" + month + "-" + year + "/itemNo");
-				onValue(itemNoRefIncome, (snapshot) => {
-					if (snapshot.exists()) {
-						const itemNo = snapshot.val();
-					}
-					else {
-						set(itemNoRefIncome, 0);
-					}
-				});
+				// const itemNoRefIncome = ref(db, "users/" + uid + "/transactions"+"/incomes/" + month + "-" + year + "/" + day + "-" + month + "-" + year + "/itemNo");
+				// onValue(itemNoRefIncome, (snapshot) => {
+				// 	if (snapshot.exists()) {
+				// 		const itemNo = snapshot.val();
+				// 	}
+				// 	else {
+				// 		set(itemNoRefIncome, 0);
+				// 	}
+				// });
 
 				this.props.navigation.replace('Home');
 				ToastAndroid.show('Login successful', ToastAndroid.SHORT);

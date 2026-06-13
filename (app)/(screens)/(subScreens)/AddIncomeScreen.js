@@ -54,7 +54,7 @@ export default class AddIncomeScreen extends Component {
         const month = this.state.date.getMonth()+1;
         const year = this.state.date.getFullYear();
         const day = this.state.date.getDate();
-        const itemNoRef = await ref(db, "users/" + uid + "/transactions/" + "incomes/"+ month + "-" + year + "/" + day + "-" + month + "-" + year + "/itemNo");
+        const itemNoRef = await ref(db, "users/" + uid + "/transactions" + "/itemNo");
         onValue(itemNoRef, (snapshot) => {
             if (snapshot.exists()) {
                 const itemNo = snapshot.val();
@@ -65,7 +65,7 @@ export default class AddIncomeScreen extends Component {
             }
         });
 
-        const totalIncomeRef = await ref(db, "users/" + uid + "/transactions/" + "incomes/"+ month + "-" + year + "/totalIncomes");
+        const totalIncomeRef = await ref(db, "users/" + uid + "/transactions" + "/totalIncomes");
         onValue(totalIncomeRef, (snapshot) => {
             if (snapshot.exists()) {
                 const totalIncomes = snapshot.val();
@@ -126,19 +126,20 @@ export default class AddIncomeScreen extends Component {
             const day = this.state.date.getDate();
             const db = getDatabase();
 
-            const incomesRef = ref(db, "users/" + uid + "/transactions"+"/incomes/" + month + "-" + year + "/" + day + "-" + month + "-" + year + "/" + this.state.itemNo + "/");
+            const incomesRef = ref(db, "users/" + uid + "/transactions" + "/" + this.state.itemNo + "/");
             try {
                 set(incomesRef, {
                     category: this.state.category,
                     title: this.state.title,
                     amount: parseFloat(this.state.amount),
                     note: this.state.note,
+                    type: "income"
                 });
 
-                const itemNoRef = await ref(db, "users/" + uid + "/transactions/" + "incomes/"+ month + "-" + year + "/" + day + "-" + month + "-" + year + "/itemNo");
+                const itemNoRef = await ref(db, "users/" + uid + "/transactions" + "/itemNo");
                 set(itemNoRef, this.state.itemNo + 1);
 
-                const totalIncomeRef = await ref(db, "users/" + uid + "/transactions/" + "incomes/"+ month + "-" + year + "/totalIncomes");
+                const totalIncomeRef = await ref(db, "users/" + uid + "/transactions" + "/totalIncomes");
                 set(totalIncomeRef, this.state.totalIncome + parseFloat(this.state.amount));
 
                 Alert.alert("Income added successfully!");
@@ -148,7 +149,7 @@ export default class AddIncomeScreen extends Component {
             }
         }
         else {
-            Alert.alert("Please fill in all the required fields!!.");
+            Alert.alert("Please fill in all the required fields!!!.");
         }
     }
 

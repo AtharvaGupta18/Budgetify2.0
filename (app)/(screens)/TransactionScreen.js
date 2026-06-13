@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, StatusBar, ActivityIndicator, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, StatusBar, ActivityIndicator, ScrollView, Alert, FlatList} from 'react-native';
 import { getAuth } from "firebase/auth";
 import { getDatabase, ref, onValue } from "firebase/database";
 import { Ionicons } from '@expo/vector-icons';
@@ -14,7 +14,7 @@ export default class TransactionScreen extends React.Component {
             isThemeLoaded: false,
             isDataLoaded: false,
             date: new Date(),
-            data: null
+            data: []
         };
     }
 
@@ -26,11 +26,11 @@ export default class TransactionScreen extends React.Component {
         const year = this.state.date.getFullYear();
         const day = this.state.date.getDate();
 
-        const expensesRef = ref(db, "users/" + uid + "/transactions" + "/expenses/");
-        onValue(expensesRef, (snapshot)=>{
+        const transactionsRef = ref(db, "users/" + uid + "/transactions");
+        onValue(transactionsRef, (snapshot)=>{
             if (snapshot.exists()){
                 const data = snapshot.val();
-                this.setState({data: data, isDataLoaded: true})
+                this.setState({data: data, isDataLoaded: true});
             }
             else{
                 Alert.alert("Something went wrong while loading data. \n Please try again later.");
@@ -69,14 +69,9 @@ export default class TransactionScreen extends React.Component {
         else {
             return (
                 <SafeAreaView style={Theme === "light" ? styles.container : styles.containerDark}>
-                    <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
                         <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
                             <Text style={Theme === "light" ? styles.heading : styles.headingDark}>Transactions Screen</Text>
                         </View>
-
-
-
-                    </ScrollView>
 
                     {/* BOTTOM NAVIGATION BAR */}
                     <View style={Theme === "light" ? styles.bottomTab : styles.bottomTabDark}>

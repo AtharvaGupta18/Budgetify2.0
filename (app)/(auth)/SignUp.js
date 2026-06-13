@@ -63,6 +63,9 @@ export default class SignUp extends React.Component {
         await set(ref(db, 'users/' + uid), {
             name: this.state.name,
             email: this.state.email,
+            theme: Theme
+        }).catch((error) => {
+            Alert.alert("Error creating database entry \n Please try again later");
         });
     }
 
