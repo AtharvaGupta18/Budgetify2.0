@@ -27,10 +27,14 @@ export default class AddExpenseScreen extends Component {
             category: "payments",
             note: "",
             date: new Date(),
-            isThemeLoaded: false,
             uid: '',
             itemNo: 0,
+            itemNoDaily: null,
             totalExpense: 0,
+            isThemeLoaded: false,
+            isItemNoLoaded: false,
+            isItemNoDailyLoaded: false,
+            isTotalExpenseLoaded: false
         };
     }
 
@@ -54,23 +58,35 @@ export default class AddExpenseScreen extends Component {
         const month = this.state.date.getMonth()+1;
         const year = this.state.date.getFullYear();
         const day = this.state.date.getDate();
-        const itemNoRef = await ref(db, "users/" + uid + "/transactions" + "/itemNo");
+
+        const itemNoRef = await ref(db, "users/" + uid + "/itemNo");
         onValue(itemNoRef, (snapshot) => {
             if (snapshot.exists()) {
                 const itemNo = snapshot.val();
-                this.setState({ itemNo: itemNo });
+                this.setState({ itemNo: itemNo, isItemNoLoaded: true });
             }
             else {
                 Alert.alert("Something went wrong");
             }
         });
 
-        const totalExpenseRef = await ref(db, "users/" + uid + "/transactions" + "/totalExpenses");
+        const itemNoDailyRef = await ref(db, "users/" + uid + "/itemNoDaily");
+        onValue(itemNoDailyRef, (snapshot) => {
+            if (snapshot.exists()) {
+                const itemNoDaily = snapshot.val();
+                this.setState({ itemNoDaily: itemNoDaily, isItemNoDailyLoaded: true });
+            }
+            else {
+                Alert.alert("Something went wrong");
+            }
+        });
+
+        const totalExpenseRef = await ref(db, "users/" + uid + "/totalExpenses");
         onValue(totalExpenseRef, (snapshot) => {
             if (snapshot.exists()) {
                 const totalExpenses = snapshot.val();
                 set(totalExpenseRef, totalExpenses);
-                this.setState({ totalExpense: totalExpenses });
+                this.setState({ totalExpense: totalExpenses, isTotalExpenseLoaded: true });
             } else {
                 set(totalExpenseRef, 0);
             }
@@ -127,9 +143,9 @@ export default class AddExpenseScreen extends Component {
             const day = this.state.date.getDate();
             const db = getDatabase();
 
-            const expensesRef = ref(db, "users/" + uid + "/transactions" + "/" + this.state.itemNo + "/");
+            const expensesDataRef = await ref(db, "users/" + uid + "/transactions" + "/" + this.state.itemNo + "/data/" + this.state.itemNoDaily);
             try {
-                set(expensesRef, {
+                set(expensesDataRef, {
                     category: this.state.category,
                     title: this.state.title,
                     amount: parseFloat(this.state.amount),
@@ -137,10 +153,10 @@ export default class AddExpenseScreen extends Component {
                     type: "expense",
                 });
 
-                const itemNoRef = await ref(db, "users/" + uid + "/transactions" + "/itemNo");
-                set(itemNoRef, this.state.itemNo + 1);
+                const itemNoDailyRef = await ref(db, "users/" + uid + "/itemNoDaily");
+                set(itemNoDailyRef, this.state.itemNoDaily + 1);
 
-                const totalExpenseRef = await ref(db, "users/" + uid + "/transactions" + "/totalExpenses");
+                const totalExpenseRef = await ref(db, "users/" + uid + "/totalExpenses");
                 set(totalExpenseRef, this.state.totalExpense + parseFloat(this.state.amount));
 
                 Alert.alert("Expense added successfully!");
@@ -155,7 +171,7 @@ export default class AddExpenseScreen extends Component {
     }
 
     render() {
-        if (!this.state.isThemeLoaded) {
+        if (!this.state.isThemeLoaded && !this.state.isItemNoLoaded && !this.state.isItemNoDailyLoaded && !this.state.isTotalExpenseLoaded) {
             return (
                 <SafeAreaView style={styles.container}>
                     <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>

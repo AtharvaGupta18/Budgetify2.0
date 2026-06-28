@@ -27,10 +27,14 @@ export default class AddIncomeScreen extends Component {
             category: "payments",
             note: "",
             date: new Date(),
-            isThemeLoaded: false,
             uid: '',
             itemNo: 0,
+            itemNoDaily: null,
             totalIncome: 0,
+            isThemeLoaded: false,
+            isItemNoLoaded: false,
+            isItemNoDailyLoaded: false,
+            isTotalIncomeLoaded: false
         };
     }
 
@@ -54,29 +58,42 @@ export default class AddIncomeScreen extends Component {
         const month = this.state.date.getMonth()+1;
         const year = this.state.date.getFullYear();
         const day = this.state.date.getDate();
-        const itemNoRef = await ref(db, "users/" + uid + "/transactions" + "/itemNo");
+
+        const itemNoRef = await ref(db, "users/" + uid + "/itemNo");
         onValue(itemNoRef, (snapshot) => {
             if (snapshot.exists()) {
                 const itemNo = snapshot.val();
-                this.setState({ itemNo: itemNo });
+                this.setState({ itemNo: itemNo, isItemNoLoaded: true });
             }
             else {
                 Alert.alert("Something went wrong");
             }
         });
 
-        const totalIncomeRef = await ref(db, "users/" + uid + "/transactions" + "/totalIncomes");
+        const itemNoDailyRef = await ref(db, "users/" + uid + "/itemNoDaily");
+        onValue(itemNoDailyRef, (snapshot) => {
+            if (snapshot.exists()) {
+                const itemNoDaily = snapshot.val();
+                this.setState({ itemNoDaily: itemNoDaily, isItemNoDailyLoaded: true });
+            }
+            else {
+                Alert.alert("Something went wrong");
+            }
+        });
+
+        const totalIncomeRef = await ref(db, "users/" + uid + "/totalIncome");
         onValue(totalIncomeRef, (snapshot) => {
             if (snapshot.exists()) {
                 const totalIncomes = snapshot.val();
                 set(totalIncomeRef, totalIncomes);
-                this.setState({ totalIncome: totalIncomes });
+                this.setState({ totalIncome: totalIncomes, isTotalIncomeLoaded: true });
             } else {
                 set(totalIncomeRef, 0);
             }
         });
 
     }
+
     getCategoryIcon() {
         switch (this.state.category) {
             case "Groceries":
@@ -116,36 +133,36 @@ export default class AddIncomeScreen extends Component {
                 return "payments";
         }
     }
-    
+
     async addIncome() {
         if (this.state.title !== "" && this.state.category !== "" && parseFloat(this.state.amount) > 0) {
-            // Logic to add income to the database
+            // Logic to add Income to the database
             const uid = this.state.uid;
             const month = this.state.date.getMonth()+1;
             const year = this.state.date.getFullYear();
             const day = this.state.date.getDate();
             const db = getDatabase();
 
-            const incomesRef = ref(db, "users/" + uid + "/transactions" + "/" + this.state.itemNo + "/");
+            const incomesDataRef = await ref(db, "users/" + uid + "/transactions" + "/" + this.state.itemNo + "/data/" + this.state.itemNoDaily);
             try {
-                set(incomesRef, {
+                set(incomesDataRef, {
                     category: this.state.category,
                     title: this.state.title,
                     amount: parseFloat(this.state.amount),
                     note: this.state.note,
-                    type: "income"
+                    type: "income",
                 });
 
-                const itemNoRef = await ref(db, "users/" + uid + "/transactions" + "/itemNo");
-                set(itemNoRef, this.state.itemNo + 1);
+                const itemNoDailyRef = await ref(db, "users/" + uid + "/itemNoDaily");
+                set(itemNoDailyRef, this.state.itemNoDaily + 1);
 
-                const totalIncomeRef = await ref(db, "users/" + uid + "/transactions" + "/totalIncomes");
+                const totalIncomeRef = await ref(db, "users/" + uid + "/totalIncomes");
                 set(totalIncomeRef, this.state.totalIncome + parseFloat(this.state.amount));
 
                 Alert.alert("Income added successfully!");
             }
             catch (error) {
-                Alert.alert("Error adding income \n", error.message);
+                Alert.alert("Error adding Income \n", error.message);
             }
         }
         else {
@@ -154,7 +171,7 @@ export default class AddIncomeScreen extends Component {
     }
 
     render() {
-        if (!this.state.isThemeLoaded) {
+        if (!this.state.isThemeLoaded && !this.state.isItemNoLoaded && !this.state.isItemNoDailyLoaded && !this.state.isTotalIncomeLoaded) {
             return (
                 <SafeAreaView style={styles.container}>
                     <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
@@ -207,7 +224,7 @@ export default class AddIncomeScreen extends Component {
                             <Text style={Theme === "light" ? styles.label : styles.labelDark}>Title</Text>
                             <TextInput
                                 style={Theme === "light" ? styles.input : styles.inputDark}
-                                placeholder="Income Title"
+                                placeholder="Expenditure Title"
                                 placeholderTextColor={Theme === "dark" ? "#A0A0A0" : "#5A5A5A"}
                                 value={this.state.title}
                                 onChangeText={(title) => this.setState({ title })}

@@ -28,7 +28,7 @@ export default class SignIn extends React.Component {
 			password: '',
 			secureTextEntry: true,
 			isThemeLoaded: false,
-			date: new Date(),
+			date: new Date()
 		};
 	}
 
@@ -44,29 +44,52 @@ export default class SignIn extends React.Component {
 			.then((userCredential) => {
 				const uid = userCredential.user.uid;
 				const db = getDatabase();
-				const month = this.state.date.getMonth()+1;
+				const month = this.state.date.getMonth() + 1;
 				const year = this.state.date.getFullYear();
 				const day = this.state.date.getDate();
 
-				const itemNoRef = ref(db, "users/" + uid + "/transactions" + "/itemNo");
+				//Check if user has item no generated, if not it'll get generated. 
+				const itemNoRef = ref(db, "users/" + uid + "/itemNo");
 				onValue(itemNoRef, (snapshot) => {
 					if (snapshot.exists()) {
 						const itemNo = snapshot.val();
+						const dateRef = ref(db, "users/" + uid + "/transactions" + "/" + itemNo + "/date");
+						onValue(dateRef, (snapshot) => {
+							if (snapshot.exists()) {
+								const fetchedDate = snapshot.val(); 
+								const currentDate = day + "-" + month + "-" + year;
+								// if (fetchedDate !== currentDate) {
+								// 	const newItemNo = parseInt(itemNo) + 1;
+								// 	set(itemNoRef, newItemNo);
+
+								// 	const dateRef2 = ref(db, "users/" + uid + "/transactions" + "/" + newItemNo + "/date");
+								// 	set(dateRef2, day + "-" + month + "-" + year);
+
+								// 	const itemNoDailyRef = ref(db, "users/" + uid + "/itemNoDaily");
+								// 	set(itemNoDailyRef, 0);
+								// }
+							}
+							else {
+								set(dateRef, day+"-"+month+"-"+year);
+							}
+						})
 					}
 					else {
+						const dateRef = ref(db, "users/" + uid + "/transactions" + "/" + "0" + "/date");
 						set(itemNoRef, 0);
+						set(dateRef, day + "-" + month + "-" + year);
 					}
 				});
 
-				// const itemNoRefIncome = ref(db, "users/" + uid + "/transactions"+"/incomes/" + month + "-" + year + "/" + day + "-" + month + "-" + year + "/itemNo");
-				// onValue(itemNoRefIncome, (snapshot) => {
-				// 	if (snapshot.exists()) {
-				// 		const itemNo = snapshot.val();
-				// 	}
-				// 	else {
-				// 		set(itemNoRefIncome, 0);
-				// 	}
-				// });
+				const itemNoDailyRef = ref(db, "users/" + uid + "/itemNoDaily");
+				onValue(itemNoDailyRef, (snapshot) => {
+					if (snapshot.exists()) {
+						const itemNoDaily = snapshot.val();
+					}
+					else {
+						set(itemNoDailyRef, 0);
+					}
+				});
 
 				this.props.navigation.replace('Home');
 				ToastAndroid.show('Login successful', ToastAndroid.SHORT);
