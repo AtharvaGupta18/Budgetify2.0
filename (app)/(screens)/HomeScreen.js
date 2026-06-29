@@ -1,17 +1,27 @@
 import * as React from 'react';
-import { StyleSheet, Text, View, ScrollView, TouchableOpacity, StatusBar, ActivityIndicator, Alert } from 'react-native';
+import { StyleSheet, Text, View, ScrollView, TouchableOpacity, StatusBar, ActivityIndicator, Alert, FlatList } from 'react-native';
 import { Ionicons, FontAwesome5, MaterialIcons } from '@expo/vector-icons';
 import { getAuth } from "firebase/auth";
-import { getDatabase, ref, onValue } from "firebase/database";
-import {SafeAreaView} from 'react-native-safe-area-context';
+import { getDatabase, set, ref, onValue } from "firebase/database";
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 let Theme;
 export default class HomeScreen extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            isThemeLoaded: false, 
-            name: ''
+            isThemeLoaded: false,
+            name: '',
+            itemNo: null,
+            data: [],
+            totalExpense:0,
+            totalIncome:0,
+            totalBalance:0,
+            isDataFound: false,
+            isDataLoaded: false,
+            isTotalExpenseLoaded:false,
+            isTotalIncomeLoaded:false,
+            isTotalBalanceLoaded:false
         };
     }
 
@@ -36,14 +46,92 @@ export default class HomeScreen extends React.Component {
             if (snapshot.exists()) {
                 const name = snapshot.val();
                 this.setState({ name: name });
+            }
+        });
+
+        //get item no
+        let itemNo;
+        const itemNoRef = await ref(db, "users/" + uid + "/itemNo");
+        onValue(itemNoRef, (snapshot) => {
+            if (snapshot.exists()) {
+                itemNo = snapshot.val();
+                this.setState({ itemNo: itemNo });
             } else {
-                Alert.alert("No name found in database.");
+                Alert.alert("An error occured");
+            }
+        });
+
+        //get today's transaction data
+        const dataRef = await ref(db, "users/" + uid + "/transactions/" + itemNo + "/data");
+        onValue(dataRef, (snapshot) => {
+            if (snapshot.exists()) {
+                const data = snapshot.val();
+                this.setState({ data: data, isDataFound: true, isDataLoaded: true });
+            }
+            else {
+                this.setState({ isDataFound: false, isDataLoaded: true });
+            }
+        });
+
+        const totalExpenseRef = await ref(db, "users/" + uid + "/totalExpenses");
+        onValue(totalExpenseRef, (snapshot) => {
+            if (snapshot.exists()) {
+                const totalExpenses = snapshot.val();
+                this.setState({ totalExpense: totalExpenses, isTotalExpenseLoaded: true });
+            } else {
+                set(totalExpenseRef, 0);
+            }
+        });
+
+        const totalIncomeRef = await ref(db, "users/" + uid + "/totalIncome");
+        onValue(totalIncomeRef, (snapshot) => {
+            if (snapshot.exists()) {
+                const totalIncomes = snapshot.val();
+                this.setState({ totalIncome: totalIncomes, isTotalIncomeLoaded: true });
+            } else {
+                set(totalIncomeRef, 0);
+            }
+        });
+
+        const totalBalanceRef = await ref(db, "users/" + uid + "/totalBalance");
+        onValue(totalBalanceRef, (snapshot) => {
+            if (snapshot.exists()) {
+                const totalBalance = snapshot.val();
+                this.setState({ totalBalance: totalBalance, isTotalBalanceLoaded: true });
+            } else {
+                set(totalBalanceRef, 0);
             }
         });
     }
 
+    renderItem = ({ item }) => {
+        return (
+            <View style={Theme === "light" ? styles.itemContainer : styles.itemContainerDark}>
+                <View style={styles.leftContainer}>
+                    <View style={[styles.iconContainer, { backgroundColor: item.type === "income" ? "#DDF6EA" : "#FDE6E6" }]}>
+                        <MaterialIcons
+                            name={item.category}
+                            size={26}
+                            color={item.type === 'income' ? "#0F8A50" : "#E45B5B"}
+                        />
+                    </View>
+
+                    <View>
+                        <Text style={Theme === "light" ? styles.transactionTitle : styles.transactionTitleDark}>{item.title}</Text>
+                        <Text style={styles.note}>{item.note}</Text>
+                    </View>
+                </View>
+
+                <Text style={[styles.amount, { color: item.type === "income" ? "#0F8A50" : "#F44336" }]}>
+                    {item.type === "income" ? "+" : "-"} ₹{" "}
+                    {Number(item.amount).toLocaleString()}
+                </Text>
+            </View>
+        );
+    };
+
     render() {
-        if (!this.state.isThemeLoaded && this.state.name !== '') {
+        if (!this.state.isThemeLoaded && this.state.name !== '' && !this.state.isDataLoaded && !this.state.isTotalExpenseLoaded && !this.state.isTotalIncomeLoaded && !this.state.isTotalBalanceLoaded) {
             return (
                 <SafeAreaView style={styles.container}>
                     <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
@@ -51,9 +139,9 @@ export default class HomeScreen extends React.Component {
                     </View>
                 </SafeAreaView>
             )
-        } else {
+        } else if (!this.state.isDataFound && !this.state.isThemeLoaded && this.state.name !== '' && !this.state.isDataLoaded && !this.state.isTotalExpenseLoaded && !this.state.isTotalIncomeLoaded && !this.state.isTotalBalanceLoaded) {
             return (
-                <SafeAreaView style={{ flex: 1, backgroundColor: Theme === "light" ? "#FAFAFA" : "#050C1C", marginTop: - (StatusBar.currentHeight + 10)}}>
+                <SafeAreaView style={{ flex: 1, backgroundColor: Theme === "light" ? "#FAFAFA" : "#050C1C", marginTop: - (StatusBar.currentHeight + 10) }}>
                     <StatusBar backgroundColor={Theme === "light" ? "#FAFAFA" : "#050C1C"} />
 
                     {/* HEADER SECTION */}
@@ -64,24 +152,24 @@ export default class HomeScreen extends React.Component {
                         </View>
                     </View>
 
-                    <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
+                    <View style={styles.scrollContent}>
 
                         {/* BALANCE CARD */}
                         <View style={styles.balanceCard}>
                             <View style={styles.balanceHeader}>
                                 <Text style={styles.balanceTitle}>Total Balance</Text>
                             </View>
-                            <Text style={styles.balanceAmount}>₹ 24,750.00</Text>
+                            <Text style={styles.balanceAmount}>₹ {this.state.totalBalance}</Text>
 
                             <View style={styles.statsContainer}>
                                 <View style={styles.statBox}>
                                     <Text style={styles.statLabel}>Income</Text>
-                                    <Text style={ styles.income}>₹ 40,000.00</Text>
+                                    <Text style={styles.income}>₹ {this.state.totalIncome}</Text>
                                 </View>
                                 <View style={styles.statDivider} />
                                 <View style={styles.statBox}>
                                     <Text style={styles.statLabel}>Expenses</Text>
-                                    <Text style={styles.expenses}>₹ 15,250.00</Text>
+                                    <Text style={styles.expenses}>₹ {this.state.totalExpense}</Text>
                                 </View>
                             </View>
                         </View>
@@ -114,55 +202,108 @@ export default class HomeScreen extends React.Component {
 
                         {/* TRANSACTION LIST */}
                         <View style={Theme === "light" ? styles.transactionList : styles.transactionListDark}>
-                            {/* Item 1 */}
-                            <View style={styles.transactionItem}>
-                                <View style={[styles.transIconContainer, { backgroundColor: '#EBF7EE' }]}>
-                                    <Ionicons name="arrow-down" size={20} color="#2BB673" />
-                                </View>
-                                <View style={styles.transDetails}>
-                                    <Text style={Theme === "light" ? styles.transTitle : styles.transTitleDark}>Salary</Text>
-                                    <Text style={styles.transDate}>Today</Text>
-                                </View>
-                                <Text style={styles.transCredit}>+ ₹ 40,000</Text>
-                            </View>
+                            <Text>Data Not found</Text>
+                        </View>
 
-                            {/* Item 2 */}
-                            <View style={styles.transactionItem}>
-                                <View style={[styles.transIconContainer, { backgroundColor: '#FCECEC' }]}>
-                                    <Ionicons name="arrow-up" size={20} color="#E74C3C" />
-                                </View>
-                                <View style={styles.transDetails}>
-                                    <Text style={Theme === "light" ? styles.transTitle : styles.transTitleDark}>Groceries</Text>
-                                    <Text style={styles.transDate}>Today</Text>
-                                </View>
-                                <Text style={styles.transDebit}>- ₹ 1,250</Text>
-                            </View>
+                    </View>
 
-                            {/* Item 3 */}
-                            <View style={styles.transactionItem}>
-                                <View style={[styles.transIconContainer, { backgroundColor: '#FEF5EC' }]}>
-                                    <FontAwesome5 name="hamburger" size={18} color="#E67E22" />
-                                </View>
-                                <View style={styles.transDetails}>
-                                    <Text style={Theme === "light" ? styles.transTitle : styles.transTitleDark }>Food</Text>
-                                    <Text style={styles.transDate}>Yesterday</Text>
-                                </View>
-                                <Text style={styles.transDebit}>- ₹ 350</Text>
-                            </View>
+                    {/* BOTTOM NAVIGATION BAR */}
+                    <View style={Theme === "light" ? styles.bottomTab : styles.bottomTabDark}>
+                        <TouchableOpacity style={styles.tabItem}>
+                            <Ionicons name="home" size={22} color="#2BB673" />
+                            <Text style={[styles.tabText, { color: '#2BB673', fontWeight: '600' }]}>Home</Text>
+                        </TouchableOpacity>
 
-                            {/* Item 4 */}
-                            <View style={styles.transactionItem}>
-                                <View style={[styles.transIconContainer, { backgroundColor: '#F0F3F4' }]}>
-                                    <FontAwesome5 name="bus" size={18} color="#7F8C8D" />
-                                </View>
-                                <View style={styles.transDetails}>
-                                    <Text style={Theme === "light" ? styles.transTitle : styles.transTitleDark}>Transport</Text>
-                                    <Text style={styles.transDate}>Yesterday</Text>
-                                </View>
-                                <Text style={styles.transDebit}>- ₹ 120</Text>
+                        <TouchableOpacity style={styles.tabItem} onPress={() => this.props.navigation.navigate('Transactions')}>
+                            <Ionicons name="swap-horizontal" size={22} color="#95A5A6" />
+                            <Text style={styles.tabText}>Transactions</Text>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity style={styles.tabItem} onPress={() => { this.props.navigation.navigate('Reports') }}>
+                            <Ionicons name="bar-chart-outline" size={22} color="#95A5A6" />
+                            <Text style={styles.tabText}>Reports</Text>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity style={styles.tabItem} onPress={() => { this.props.navigation.navigate('Profile') }}>
+                            <Ionicons name="person-outline" size={22} color="#95A5A6" />
+                            <Text style={styles.tabText}>Profile</Text>
+                        </TouchableOpacity>
+                    </View>
+                </SafeAreaView>
+            );
+        }
+        else {
+            return (
+                <SafeAreaView style={{ flex: 1, backgroundColor: Theme === "light" ? "#FAFAFA" : "#050C1C", marginTop: - (StatusBar.currentHeight + 10) }}>
+                    <StatusBar backgroundColor={Theme === "light" ? "#FAFAFA" : "#050C1C"} />
+
+                    <ScrollView>
+                        {/* HEADER SECTION */}
+                        <View style={styles.header}>
+                            <View>
+                                <Text style={Theme === "light" ? styles.welcomeText : styles.welcomeTextDark}>Welcome, {this.state.name}</Text>
+                                <Text style={Theme === "light" ? styles.subWelcomeText : styles.subWelcomeTextDark}>Good to see you again!</Text>
                             </View>
                         </View>
 
+                        <View style={styles.scrollContent}>
+
+                            {/* BALANCE CARD */}
+                            <View style={styles.balanceCard}>
+                                <View style={styles.balanceHeader}>
+                                    <Text style={styles.balanceTitle}>Total Balance</Text>
+                                </View>
+                                <Text style={styles.balanceAmount}>₹ {this.state.totalBalance}</Text>
+
+                                <View style={styles.statsContainer}>
+                                    <View style={styles.statBox}>
+                                        <Text style={styles.statLabel}>Income</Text>
+                                        <Text style={styles.income}>₹ {this.state.totalIncome}</Text>
+                                    </View>
+                                    <View style={styles.statDivider} />
+                                    <View style={styles.statBox}>
+                                        <Text style={styles.statLabel}>Expenses</Text>
+                                        <Text style={styles.expenses}>₹ {this.state.totalExpense}</Text>
+                                    </View>
+                                </View>
+                            </View>
+
+                            {/* QUICK ACTIONS */}
+                            <Text style={Theme === "light" ? styles.sectionTitle : styles.sectionTitleDark}>Quick Actions</Text>
+                            <View style={styles.actionsContainer}>
+                                <TouchableOpacity style={Theme === "light" ? styles.actionButton : styles.actionButtonDark} onPress={() => this.props.navigation.navigate('AddIncome')}>
+                                    <View style={[styles.actionIconContainer, { backgroundColor: '#EBF7EE' }]}>
+                                        <MaterialIcons name="move-to-inbox" size={24} color="#2BB673" />
+                                    </View>
+                                    <Text style={Theme === "light" ? styles.actionText : styles.actionTextDark}>Add Income</Text>
+                                </TouchableOpacity>
+
+                                <TouchableOpacity style={Theme === "light" ? styles.actionButton : styles.actionButtonDark} onPress={() => this.props.navigation.navigate('AddExpense')}>
+                                    <View style={[styles.actionIconContainer, { backgroundColor: '#FCECEC' }]}>
+                                        <Ionicons name="trash-bin" size={24} color="#E74C3C" />
+                                    </View>
+                                    <Text style={Theme === "light" ? styles.actionText : styles.actionTextDark}>Add Expense</Text>
+                                </TouchableOpacity>
+                            </View>
+
+                            {/* RECENT TRANSACTIONS */}
+                            <View style={styles.transactionsHeader}>
+                                <Text style={Theme === "light" ? styles.sectionTitle : styles.sectionTitleDark}>Recent Transactions</Text>
+                                <TouchableOpacity onPress={() => this.props.navigation.navigate('Transactions')}>
+                                    <Text style={styles.seeAllText}>See All</Text>
+                                </TouchableOpacity>
+                            </View>
+
+                            {/* TRANSACTION LIST */}
+                            <View style={Theme === "light" ? styles.transactionList : styles.transactionListDark}>
+                                <FlatList
+                                    data={this.state.data}
+                                    renderItem={this.renderItem}
+                                    keyExtractor={(item, index) => index.toString()}
+                                />
+                            </View>
+
+                        </View>
                     </ScrollView>
 
                     {/* BOTTOM NAVIGATION BAR */}
@@ -190,6 +331,7 @@ export default class HomeScreen extends React.Component {
                 </SafeAreaView>
             );
         }
+
     }
 }
 
@@ -368,48 +510,68 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: '#F0F0F0',
     },
-    transactionItem: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        paddingVertical: 14,
-        borderBottomWidth: 1,
-        borderBottomColor: '#F8F9FA',
+
+    listContent: {
+        paddingVertical: 8,
     },
-    transIconContainer: {
-        width: 40,
-        height: 40,
-        borderRadius: 20,
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginRight: 12,
+
+    itemContainer: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "center",
+        paddingVertical: 16,
+        backgroundColor: "#fff",
     },
-    transDetails: {
+
+    itemContainerDark: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "center",
+        paddingVertical: 16,
+        backgroundColor: "#0F172A",
+    },
+
+    leftContainer: {
+        flexDirection: "row",
+        alignItems: "center",
         flex: 1,
     },
-    transTitle: {
-        fontSize: 15,
-        fontWeight: '600',
-        color: '#2C3E50',
+
+    iconContainer: {
+        width: 48,
+        height: 48,
+        borderRadius: 24,
+        justifyContent: "center",
+        alignItems: "center",
+        marginRight: 14,
     },
-    transTitleDark: {
-        fontSize: 15,
-        fontWeight: '600',
-        color: '#A0A0A0',
+
+    transactionTitle: {
+        fontSize: 17,
+        fontWeight: "600",
+        color: '#1E293B'
     },
-    transDate: {
-        fontSize: 12,
-        color: '#95A5A6',
-        marginTop: 2,
+
+    transactionTitleDark: {
+        fontSize: 17,
+        fontWeight: "600",
+        color: '#d6d3d3',
     },
-    transCredit: {
-        fontSize: 15,
-        fontWeight: 'bold',
-        color: '#2BB673',
+
+    note: {
+        color: "#777",
+        marginTop: 4,
     },
-    transDebit: {
-        fontSize: 15,
-        fontWeight: 'bold',
-        color: '#E74C3C',
+
+    amount: {
+        fontSize: 16,
+        fontWeight: "700",
+    },
+
+    separator: {
+        height: 1,
+        backgroundColor: "#1E293B",
+        marginLeft: 82,
     },
     bottomTab: {
         position: 'absolute',

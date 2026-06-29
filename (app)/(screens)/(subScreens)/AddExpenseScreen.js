@@ -31,10 +31,12 @@ export default class AddExpenseScreen extends Component {
             itemNo: 0,
             itemNoDaily: null,
             totalExpense: 0,
+            totalBalance:0,
             isThemeLoaded: false,
             isItemNoLoaded: false,
             isItemNoDailyLoaded: false,
-            isTotalExpenseLoaded: false
+            isTotalExpenseLoaded: false,
+            isTotalBalanceLoaded: false
         };
     }
 
@@ -85,10 +87,19 @@ export default class AddExpenseScreen extends Component {
         onValue(totalExpenseRef, (snapshot) => {
             if (snapshot.exists()) {
                 const totalExpenses = snapshot.val();
-                set(totalExpenseRef, totalExpenses);
                 this.setState({ totalExpense: totalExpenses, isTotalExpenseLoaded: true });
             } else {
                 set(totalExpenseRef, 0);
+            }
+        });
+
+        const totalBalanceRef = await ref(db, "users/" + uid + "/totalBalance");
+        onValue(totalBalanceRef, (snapshot) => {
+            if (snapshot.exists()) {
+                const totalBalance = snapshot.val();
+                this.setState({ totalBalance: totalBalance, isTotalBalanceLoaded: true });
+            } else {
+                set(totalBalanceRef, 0);
             }
         });
 
@@ -162,6 +173,9 @@ export default class AddExpenseScreen extends Component {
                 const totalExpenseRef = await ref(db, "users/" + uid + "/totalExpenses");
                 set(totalExpenseRef, this.state.totalExpense + parseFloat(this.state.amount));
 
+                const totalBalanceRef = await ref(db, "users/" + uid + "/totalBalance");
+                set(totalBalanceRef, this.state.totalBalance - parseFloat(this.state.amount));
+
                 Alert.alert("Expense added successfully!");
             }
             catch (error) {
@@ -174,7 +188,7 @@ export default class AddExpenseScreen extends Component {
     }
 
     render() {
-        if (!this.state.isThemeLoaded && !this.state.isItemNoLoaded && !this.state.isItemNoDailyLoaded && !this.state.isTotalExpenseLoaded) {
+        if (!this.state.isThemeLoaded && !this.state.isItemNoLoaded && !this.state.isItemNoDailyLoaded && !this.state.isTotalExpenseLoaded && !this.state.isTotalBalanceLoaded) {
             return (
                 <SafeAreaView style={styles.container}>
                     <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>

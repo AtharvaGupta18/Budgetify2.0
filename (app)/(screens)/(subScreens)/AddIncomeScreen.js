@@ -31,10 +31,12 @@ export default class AddIncomeScreen extends Component {
             itemNo: 0,
             itemNoDaily: null,
             totalIncome: 0,
+            totalBalance: 0,
             isThemeLoaded: false,
             isItemNoLoaded: false,
             isItemNoDailyLoaded: false,
-            isTotalIncomeLoaded: false
+            isTotalIncomeLoaded: false,
+            isTotalBalanceLoaded: false
         };
     }
 
@@ -55,7 +57,7 @@ export default class AddIncomeScreen extends Component {
             }
         });
 
-        const month = this.state.date.getMonth()+1;
+        const month = this.state.date.getMonth() + 1;
         const year = this.state.date.getFullYear();
         const day = this.state.date.getDate();
 
@@ -85,10 +87,19 @@ export default class AddIncomeScreen extends Component {
         onValue(totalIncomeRef, (snapshot) => {
             if (snapshot.exists()) {
                 const totalIncomes = snapshot.val();
-                set(totalIncomeRef, totalIncomes);
                 this.setState({ totalIncome: totalIncomes, isTotalIncomeLoaded: true });
             } else {
                 set(totalIncomeRef, 0);
+            }
+        });
+
+        const totalBalanceRef = await ref(db, "users/" + uid + "/totalBalance");
+        onValue(totalBalanceRef, (snapshot) => {
+            if (snapshot.exists()) {
+                const totalBalance = snapshot.val();
+                this.setState({ totalBalance: totalBalance, isTotalBalanceLoaded: true });
+            } else {
+                set(totalBalanceRef, 0);
             }
         });
 
@@ -122,7 +133,7 @@ export default class AddIncomeScreen extends Component {
 
             case "Refund":
                 return "refresh";
-                
+
             case "Other":
                 return "attach-money";
             default:
@@ -134,7 +145,7 @@ export default class AddIncomeScreen extends Component {
         if (this.state.title !== "" && this.state.category !== "" && parseFloat(this.state.amount) > 0) {
             // Logic to add Income to the database
             const uid = this.state.uid;
-            const month = this.state.date.getMonth()+1;
+            const month = this.state.date.getMonth() + 1;
             const year = this.state.date.getFullYear();
             const day = this.state.date.getDate();
             const db = getDatabase();
@@ -152,8 +163,11 @@ export default class AddIncomeScreen extends Component {
                 const itemNoDailyRef = await ref(db, "users/" + uid + "/itemNoDaily");
                 set(itemNoDailyRef, this.state.itemNoDaily + 1);
 
-                const totalIncomeRef = await ref(db, "users/" + uid + "/totalIncomes");
+                const totalIncomeRef = await ref(db, "users/" + uid + "/totalIncome");
                 set(totalIncomeRef, this.state.totalIncome + parseFloat(this.state.amount));
+
+                const totalBalanceRef = await ref(db, "users/" + uid + "/totalBalance");
+                set(totalBalanceRef, this.state.totalBalance + parseFloat(this.state.amount));
 
                 Alert.alert("Income added successfully!");
             }
