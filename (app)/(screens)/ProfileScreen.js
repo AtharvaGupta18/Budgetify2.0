@@ -16,15 +16,23 @@ import {
     Ionicons,
 } from "@expo/vector-icons";
 import { getAuth, signOut } from "firebase/auth";
-import { getDatabase, ref, onValue } from "firebase/database";
-import {SafeAreaView} from 'react-native-safe-area-context';
+import { getDatabase, set, ref, onValue } from "firebase/database";
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 let Theme;
 export default class ProfileScreen extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            isThemeLoaded: false
+            isThemeLoaded: false,
+            totalBalance:0,
+            totalExpense:0,
+            totalIncome:0,
+            itemNoDaily:0,
+            isTotalBalanceLoaded:false,
+            isTotalExpenseLoaded:false,
+            isTotalIncomeLoaded:false,
+            isItemNoDailyLoaded:false
         };
     }
 
@@ -43,6 +51,46 @@ export default class ProfileScreen extends React.Component {
                 Alert.alert("No theme preference found in database.");
             }
         });
+
+        const totalExpenseRef = await ref(db, "users/" + uid + "/totalExpenses");
+        onValue(totalExpenseRef, (snapshot) => {
+            if (snapshot.exists()) {
+                const totalExpenses = snapshot.val();
+                this.setState({ totalExpense: totalExpenses, isTotalExpenseLoaded: true });
+            } else {
+                set(totalExpenseRef, 0);
+            }
+        });
+
+        const totalIncomeRef = await ref(db, "users/" + uid + "/totalIncome");
+        onValue(totalIncomeRef, (snapshot) => {
+            if (snapshot.exists()) {
+                const totalIncomes = snapshot.val();
+                this.setState({ totalIncome: totalIncomes, isTotalIncomeLoaded: true });
+            } else {
+                set(totalIncomeRef, 0);
+            }
+        });
+
+        const totalBalanceRef = await ref(db, "users/" + uid + "/totalBalance");
+        onValue(totalBalanceRef, (snapshot) => {
+            if (snapshot.exists()) {
+                const totalBalance = snapshot.val();
+                this.setState({ totalBalance: totalBalance, isTotalBalanceLoaded: true });
+            } else {
+                set(totalBalanceRef, 0);
+            }
+        });
+
+        const itemNoDailyRef = await ref(db, "users/" + uid + "/itemNoDaily");
+        onValue(itemNoDailyRef, (snapshot) => {
+            if (snapshot.exists()) {
+                const itemNoDaily = snapshot.val();
+                this.setState({ itemNoDaily: itemNoDaily, isItemNoDailyLoaded: true });
+            } else {
+                set(itemNoDailyRef, 0);
+            }
+        });
     }
 
     async logout() {
@@ -51,13 +99,13 @@ export default class ProfileScreen extends React.Component {
             Alert.alert("You have been \n Logged Out successfully");
             this.props.navigation.navigate("Splash")
         }).catch((error) => {
-            Alert.alert("Something went wrong",error.message);
+            Alert.alert("Something went wrong", error.message);
         });
 
     }
 
     render() {
-        if (!this.state.isThemeLoaded) {
+        if (!this.state.isThemeLoaded && !this.state.isTotalBalanceLoaded && !this.state.isTotalExpenseLoaded && !this.state.isTotalIncomeLoaded && !this.state.isItemNoDailyLoaded) {
             return (
                 <SafeAreaView style={styles.container}>
                     <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
@@ -115,7 +163,7 @@ export default class ProfileScreen extends React.Component {
                                     </View>
 
                                     <Text style={Theme === "light" ? styles.label : styles.labelDark}>Balance</Text>
-                                    <Text style={styles.greenAmount}>₹24,750</Text>
+                                    <Text style={styles.greenAmount}>₹{this.state.totalBalance}</Text>
                                 </View>
 
                                 <View style={styles.item}>
@@ -124,7 +172,7 @@ export default class ProfileScreen extends React.Component {
                                     </View>
 
                                     <Text style={Theme === "light" ? styles.label : styles.labelDark}>Income</Text>
-                                    <Text style={styles.greenAmount}>₹40,000</Text>
+                                    <Text style={styles.greenAmount}>₹{this.state.totalIncome}</Text>
                                 </View>
 
                                 <View style={styles.item}>
@@ -133,7 +181,7 @@ export default class ProfileScreen extends React.Component {
                                     </View>
 
                                     <Text style={Theme === "light" ? styles.label : styles.labelDark}>Expenses</Text>
-                                    <Text style={styles.redAmount}>₹15,250</Text>
+                                    <Text style={styles.redAmount}>₹{this.state.totalExpense}</Text>
                                 </View>
 
                                 <View style={styles.item}>
@@ -141,8 +189,8 @@ export default class ProfileScreen extends React.Component {
                                         <Feather name="bar-chart-2" size={22} color="#5B7FFF" />
                                     </View>
 
-                                    <Text style={Theme === "light" ? styles.label : styles.labelDark}>Transactions</Text>
-                                    <Text style={styles.blueAmount}>128</Text>
+                                    <Text style={Theme === "light" ? styles.label : styles.labelDark}>Today Entries</Text>
+                                    <Text style={styles.blueAmount}>{this.state.itemNoDaily}</Text>
                                 </View>
                             </View>
                         </View>
@@ -188,7 +236,7 @@ export default class ProfileScreen extends React.Component {
                         </View>
 
                         {/* Logout */}
-                        <TouchableOpacity style={Theme === "light" ? styles.logoutButton : styles.logoutButtonDark} onPress={() => { this.logout()}}>
+                        <TouchableOpacity style={Theme === "light" ? styles.logoutButton : styles.logoutButtonDark} onPress={() => { this.logout() }}>
                             <MaterialIcons
                                 name="logout"
                                 size={24}

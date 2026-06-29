@@ -14,14 +14,14 @@ export default class HomeScreen extends React.Component {
             name: '',
             itemNo: null,
             data: [],
-            totalExpense:0,
-            totalIncome:0,
-            totalBalance:0,
+            totalExpense: 0,
+            totalIncome: 0,
+            totalBalance: 0,
             isDataFound: false,
             isDataLoaded: false,
-            isTotalExpenseLoaded:false,
-            isTotalIncomeLoaded:false,
-            isTotalBalanceLoaded:false
+            isTotalExpenseLoaded: false,
+            isTotalIncomeLoaded: false,
+            isTotalBalanceLoaded: false
         };
     }
 
@@ -131,7 +131,7 @@ export default class HomeScreen extends React.Component {
     };
 
     render() {
-        if (!this.state.isThemeLoaded && this.state.name !== '' && !this.state.isDataLoaded && !this.state.isTotalExpenseLoaded && !this.state.isTotalIncomeLoaded && !this.state.isTotalBalanceLoaded) {
+        if (!this.state.isThemeLoaded && this.state.name !== '' && !this.state.isDataLoaded) {
             return (
                 <SafeAreaView style={styles.container}>
                     <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
@@ -139,7 +139,7 @@ export default class HomeScreen extends React.Component {
                     </View>
                 </SafeAreaView>
             )
-        } else if (!this.state.isDataFound && !this.state.isThemeLoaded && this.state.name !== '' && !this.state.isDataLoaded && !this.state.isTotalExpenseLoaded && !this.state.isTotalIncomeLoaded && !this.state.isTotalBalanceLoaded) {
+        } else if (!this.state.isDataFound && !this.state.isThemeLoaded && this.state.name !== '' && !this.state.isDataLoaded) {
             return (
                 <SafeAreaView style={{ flex: 1, backgroundColor: Theme === "light" ? "#FAFAFA" : "#050C1C", marginTop: - (StatusBar.currentHeight + 10) }}>
                     <StatusBar backgroundColor={Theme === "light" ? "#FAFAFA" : "#050C1C"} />
@@ -300,6 +300,7 @@ export default class HomeScreen extends React.Component {
                                     data={this.state.data}
                                     renderItem={this.renderItem}
                                     keyExtractor={(item, index) => index.toString()}
+                                    ItemSeparatorComponent={() => <View style={Theme==="light"?styles.separator:styles.separatorDark} />}
                                 />
                             </View>
 
@@ -610,5 +611,13 @@ const styles = StyleSheet.create({
         fontSize: 10,
         color: '#95A5A6',
         marginTop: 4,
-    }
+    },
+    separator: {
+        height: 1,
+        backgroundColor: "#black"
+    },
+    separatorDark: {
+        height: 1,
+        backgroundColor: "white"
+    },
 });
