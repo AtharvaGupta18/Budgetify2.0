@@ -96,39 +96,35 @@ export default class AddIncomeScreen extends Component {
 
     getCategoryIcon() {
         switch (this.state.category) {
-            case "Groceries":
-                return "shopping-cart";
+            case "Pocket Money":
+                return "account-balance-wallet";
 
-            case "Food":
-                return "restaurant";
+            case "Business":
+                return "business";
 
-            case "Transport":
-                return "directions-car";
+            case "Win":
+                return "celebration";
+
+            case "Gift":
+                return "card-giftcard";
+
+            case "Investments":
+                return "auto-graph";
 
             case "Rent":
-                return "home";
+                return "house";
 
-            case "Health":
-                return "medical-information";
-
-            case "Entertainment":
-                return "movie";
-
-            case "Utilities":
-                return "receipt";
-
-            case "Education":
+            case "Scholarship":
                 return "school";
 
-            case "Shopping":
-                return "local-mall";
+            case "Free Lance":
+                return "workspace-premium";
 
-            case "Travel":
-                return "flight";
-
-            case "Kids":
-                return "child-care";
-
+            case "Refund":
+                return "refresh";
+                
+            case "Other":
+                return "attach-money";
             default:
                 return "payments";
         }
@@ -193,7 +189,7 @@ export default class AddIncomeScreen extends Component {
                                 <MaterialIcons
                                     name={this.getCategoryIcon()}
                                     size={55}
-                                    color="#E45B5B"
+                                    color="#0F8A50"
                                 />
                             </View>
 
@@ -206,17 +202,16 @@ export default class AddIncomeScreen extends Component {
                                     }
                                 >
                                     <Picker.Item label="Payments" value="payments" />
-                                    <Picker.Item label="Education" value="Education" />
-                                    <Picker.Item label="Entertainment" value="Entertainment" />
-                                    <Picker.Item label="Food" value="Food" />
-                                    <Picker.Item label="Groceries" value="Groceries" />
-                                    <Picker.Item label="Health" value="Health" />
-                                    <Picker.Item label="Kids" value="Kids" />
-                                    <Picker.Item label="Rent" value="Rent" />
-                                    <Picker.Item label="Shopping" value="Shopping" />
-                                    <Picker.Item label="Transport" value="Transport" />
-                                    <Picker.Item label="Travel or Vacation" value="Travel" />
-                                    <Picker.Item label="Utilities" value="Utilities" />
+                                    <Picker.Item label="Pocket Money" value="Pocket Money" />
+                                    <Picker.Item label="Business" value="Business" />
+                                    <Picker.Item label="Rewards" value="Win" />
+                                    <Picker.Item label="Gift" value="Gift" />
+                                    <Picker.Item label="Investments / Interests" value="Investments" />
+                                    <Picker.Item label="Property Rent" value="Rent" />
+                                    <Picker.Item label="Scholarship" value="Scholarship" />
+                                    <Picker.Item label="Free Lancing" value="Free Lance" />
+                                    <Picker.Item label="Refund" value="Refund" />
+                                    <Picker.Item label="Other" value="Other" />
 
                                 </Picker>
                             </View>
@@ -224,7 +219,7 @@ export default class AddIncomeScreen extends Component {
                             <Text style={Theme === "light" ? styles.label : styles.labelDark}>Title</Text>
                             <TextInput
                                 style={Theme === "light" ? styles.input : styles.inputDark}
-                                placeholder="Expenditure Title"
+                                placeholder="Income Title"
                                 placeholderTextColor={Theme === "dark" ? "#A0A0A0" : "#5A5A5A"}
                                 value={this.state.title}
                                 onChangeText={(title) => this.setState({ title })}
@@ -288,7 +283,7 @@ const styles = StyleSheet.create({
         width: 120,
         height: 120,
         borderRadius: 60,
-        backgroundColor: "#FDEAEA",
+        backgroundColor: "#DDF6EA",
         justifyContent: "center",
         alignItems: "center",
         alignSelf: "center",

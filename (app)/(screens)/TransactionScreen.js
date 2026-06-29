@@ -58,20 +58,20 @@ export default class TransactionScreen extends React.Component {
     renderTransaction = ({ item }) => {
         return (
             <ScrollView>
-                <TouchableOpacity style={styles.card}>
+                <TouchableOpacity style={Theme === "light" ? styles.card : styles.cardDark}>
                     <View style={styles.left}>
 
                         <View style={[styles.iconCircle, { backgroundColor: item.type === "income" ? "#DDF6EA" : "#FDE6E6" }]}>
                             <MaterialIcons
                                 name={item.category}
                                 size={26}
-                                color={item.type === 'income'?"#0F8A50":"#E45B5B"} 
+                                color={item.type === 'income' ? "#0F8A50" : "#E45B5B"}
                             />
                         </View>
 
                         <View>
-                            <Text style={styles.titleTransaction}>{item.title}</Text>
-                            <Text style={styles.time}>{item.note}</Text>
+                            <Text style={Theme === "light" ? styles.transactionTitle : styles.transactionTitleDark}>{item.title}</Text>
+                            <Text style={styles.note}>{item.note}</Text>
                         </View>
                     </View>
 
@@ -97,8 +97,12 @@ export default class TransactionScreen extends React.Component {
         else {
             return (
                 <SafeAreaView style={Theme === "light" ? styles.container : styles.containerDark}>
-                    <View style={{alignItems: 'center', justifyContent: 'center' }}>
-                        <Text style={Theme === "light" ? styles.heading : styles.headingDark}>Transactions Screen</Text>
+                    <StatusBar backgroundColor={Theme === "light" ? "#FAFAFA" : "#050C1C"} />
+                    <View style={styles.header}>
+                        <View>
+                            <Text style={Theme === "light" ? styles.heading : styles.headingDark}>Transactions Screen</Text>
+                            <Text style={Theme === "light" ? styles.subHeading : styles.subHeadingDark}>View your transaction logs</Text>
+                        </View>
                     </View>
 
                     <View>
@@ -108,9 +112,17 @@ export default class TransactionScreen extends React.Component {
                             renderItem={this.renderTransaction}
                             stickySectionHeadersEnabled={false}
                             renderSectionHeader={({ section }) => (
-                                <Text style={Theme === "light" ? styles.section : styles.sectionDark}>
-                                    {section.date}
-                                </Text>
+                                <View style={{
+                                    flexDirection: "row",
+                                    justifyContent: "flex-start",
+                                    alignItems: "left",
+                                    marginLeft: 30
+                                }}>
+                                    <MaterialIcons name="calendar-month" size={26} color={Theme==="light"?"#333":"#60a760"} />
+                                    <Text style={Theme === "light" ? styles.section : styles.sectionDark}>
+                                        {section.date}
+                                    </Text>
+                                </View>
                             )}
                         />
                     </View>
@@ -146,33 +158,44 @@ export default class TransactionScreen extends React.Component {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#FAFAFA',
-        marginTop: - (StatusBar.currentHeight)
+        backgroundColor: '#FAFAFA'
     },
 
     containerDark: {
         flex: 1,
-        backgroundColor: '#050C1C',
-        marginTop: - (StatusBar.currentHeight)
+        backgroundColor: '#050C1C'
     },
 
-    scrollContent: {
-        paddingHorizontal: 10,
-        paddingBottom: 100, // Space for bottom navigation
+    header: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        paddingHorizontal: 20,
+        marginBottom: 15
     },
 
     heading: {
-        marginTop: StatusBar.currentHeight,
-        fontSize: 32,
-        fontWeight: "600",
-        color: "#111827",
+        fontSize: 24,
+        fontWeight: 'bold',
+        color: '#333',
     },
 
     headingDark: {
-        marginTop: StatusBar.currentHeight,
-        fontSize: 32,
-        fontWeight: "600",
-        color: "#FAFAFA",
+        fontSize: 24,
+        fontWeight: 'bold',
+        color: '#F5F5F5',
+    },
+
+    subHeading: {
+        fontSize: 15,
+        color: '#888',
+        marginTop: 2,
+    },
+
+    subHeadingDark: {
+        fontSize: 15,
+        color: '#A0A0A0',
+        marginTop: 2,
     },
 
     bottomTab: {
@@ -218,60 +241,87 @@ const styles = StyleSheet.create({
     },
 
     headerTitle: {
-		fontSize: 30,
-		fontWeight: "700",
-	},
+        fontSize: 30,
+        fontWeight: "700",
+    },
 
-	section: {
-		marginBottom: 12,
-		marginHorizontal: 20,
-		fontSize: 20,
-		fontWeight: "700",
-        color:"#FFF"
-	},
+    section: {
+        marginTop: 5,
+        marginBottom: 12,
+        marginHorizontal: 20,
+        fontSize: 20,
+        fontWeight: "700",
+        color: "#333",
+        elevation: 2
+    },
 
     sectionDark: {
-		marginBottom: 12,
-        marginTop: '20',
-		marginHorizontal: 20,
-		fontSize: 20,
-		fontWeight: "700",
-        color:"#FFF"
-	},
+        marginTop: 5,
+        marginBottom: 12,
+        marginHorizontal: 20,
+        fontSize: 20,
+        fontWeight: "700",
+        color: "#60a760",
+        elevation: 2
+    },
 
-	card: {
-		marginHorizontal: 10,
-		backgroundColor: "#fff",
-		marginBottom: 12,
-		borderRadius: 18,
-		padding: 15,
-		flexDirection: "row",
-		justifyContent: "space-between",
-		alignItems: "center",
-		elevation: 2,
-	},
+    card: {
+        marginHorizontal: 10,
+        backgroundColor: "#fff",
+        marginBottom: 12,
+        borderRadius: 18,
+        padding: 10,
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "center",
+        elevation: 2,
+    },
 
-	iconCircle: {
-		width: 55,
-		height: 55,
-		borderRadius: 28,
-		justifyContent: "center",
-		alignItems: "center",
-		marginRight: 15,
-	},
+    cardDark: {
+        marginHorizontal: 10,
+        backgroundColor: "#0F172A",
+        marginBottom: 12,
+        borderRadius: 18,
+        padding: 10,
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "center",
+        elevation: 2,
+    },
 
-	titleTransaction: {
-		fontSize: 17,
-		fontWeight: "600",
-	},
+    iconCircle: {
+        width: 55,
+        height: 55,
+        borderRadius: 28,
+        justifyContent: "center",
+        alignItems: "center",
+        marginRight: 15,
+    },
 
-	note: {
-		color: "#777",
-		marginTop: 4,
-	},
+    transactionTitle: {
+        fontSize: 17,
+        fontWeight: "600",
+        color: '#1E293B'
+    },
 
-	amount: {
-		fontSize: 18,
-		fontWeight: "700",
-	},
+    transactionTitleDark: {
+        fontSize: 17,
+        fontWeight: "600",
+        color: '#d6d3d3',
+    },
+
+    note: {
+        color: "#777",
+        marginTop: 4,
+    },
+
+    amount: {
+        fontSize: 18,
+        fontWeight: "700",
+    },
+
+    left: {
+        flexDirection: "row",
+        alignItems: "center",
+    },
 });

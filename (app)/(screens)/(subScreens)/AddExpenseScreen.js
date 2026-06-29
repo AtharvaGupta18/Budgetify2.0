@@ -129,6 +129,9 @@ export default class AddExpenseScreen extends Component {
             case "Kids":
                 return "child-care";
 
+            case "Other":
+                return "attach-money";
+
             default:
                 return "payments";
         }
@@ -217,6 +220,7 @@ export default class AddExpenseScreen extends Component {
                                     <Picker.Item label="Transport" value="Transport" />
                                     <Picker.Item label="Travel or Vacation" value="Travel" />
                                     <Picker.Item label="Utilities" value="Utilities" />
+                                    <Picker.Item label="Other" value="Other" />
 
                                 </Picker>
                             </View>
@@ -288,7 +292,7 @@ const styles = StyleSheet.create({
         width: 120,
         height: 120,
         borderRadius: 60,
-        backgroundColor: "#FDEAEA",
+        backgroundColor: "#FDE6E6",
         justifyContent: "center",
         alignItems: "center",
         alignSelf: "center",

@@ -58,16 +58,16 @@ export default class SignIn extends React.Component {
 							if (snapshot.exists()) {
 								const fetchedDate = snapshot.val(); 
 								const currentDate = day + "-" + month + "-" + year;
-								// if (fetchedDate !== currentDate) {
-								// 	const newItemNo = parseInt(itemNo) + 1;
-								// 	set(itemNoRef, newItemNo);
+								if (fetchedDate !== currentDate) {
+									const newItemNo = parseInt(itemNo) + 1;
+									set(itemNoRef, newItemNo);
 
-								// 	const dateRef2 = ref(db, "users/" + uid + "/transactions" + "/" + newItemNo + "/date");
-								// 	set(dateRef2, day + "-" + month + "-" + year);
+									const dateRef2 = ref(db, "users/" + uid + "/transactions" + "/" + newItemNo + "/date");
+									set(dateRef2, day + "-" + month + "-" + year);
 
-								// 	const itemNoDailyRef = ref(db, "users/" + uid + "/itemNoDaily");
-								// 	set(itemNoDailyRef, 0);
-								// }
+									const itemNoDailyRef = ref(db, "users/" + uid + "/itemNoDaily");
+									set(itemNoDailyRef, 0);
+								}
 							}
 							else {
 								set(dateRef, day+"-"+month+"-"+year);
