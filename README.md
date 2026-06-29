@@ -106,7 +106,7 @@ D --> E[Track Spending]
 
 ### Database
 ```text
-☁ Firebase Firestore
+☁ Firebase Realtime Database
 ```
 
 ---
