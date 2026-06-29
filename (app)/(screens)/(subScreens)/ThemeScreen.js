@@ -1,10 +1,11 @@
 import React, { Component } from "react";
-import { View, Switch, Alert, StatusBar, ActivityIndicator } from "react-native";
-import { getDatabase, ref, set, onValue} from "firebase/database";
+import { View, Switch, Alert, StatusBar, ActivityIndicator, Text, StyleSheet } from "react-native";
+import { getDatabase, ref, set, onValue } from "firebase/database";
 import { getAuth } from "firebase/auth";
-import {SafeAreaView} from 'react-native-safe-area-context';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { MaterialIcons } from "@expo/vector-icons";
 
-let Theme, isDarkTheme=false;
+let Theme, isDarkTheme = false;
 
 export default class ThemeScreen extends Component {
 	constructor(props) {
@@ -29,9 +30,9 @@ export default class ThemeScreen extends Component {
 			if (snapshot.exists()) {
 				const theme = snapshot.val();
 				Theme = theme;
-				if(Theme === "dark") {
+				if (Theme === "dark") {
 					isDarkTheme = true;
-				}else{
+				} else {
 					isDarkTheme = false;
 				}
 				this.setState({ isThemeLoaded: true });
@@ -65,27 +66,77 @@ export default class ThemeScreen extends Component {
 			);
 		} else {
 			return (
-				<SafeAreaView style={{ flex: 1, backgroundColor: Theme === "dark" ? "#050C1C" : "#FAFAFA"}}>
+				<SafeAreaView style={{ flex: 1, backgroundColor: Theme === "dark" ? "#050C1C" : "#FAFAFA" }}>
 					<StatusBar backgroundColor={Theme === "dark" ? "#050C1C" : "#FAFAFA"} />
+
+					<View style={styles.header}>
+						<View>
+							<Text style={Theme === "light" ? styles.welcomeText : styles.welcomeTextDark}>Theme </Text>
+							<Text style={Theme === "light" ? styles.subWelcomeText : styles.subWelcomeTextDark}>Change the appearance of your app!</Text>
+						</View>
+					</View>
 					<View
 						style={{
 							flex: 1,
-							justifyContent: "center",
-							alignItems: "center",
-							marginTop: StatusBar.currentHeight,
+							flexDirection: "row",
+							justifyContent: "space-between",
+							alignItems: 'flex-start',
+							marginTop: StatusBar.currentHeight
 						}}
 					>
-						<Switch
-							value={isDarkTheme}
-							onValueChange={this.toggleTheme}
-							trackColor={{
-								false: "#D1D5DB",
-								true: "#0F8A50",
-							}}
-						/>
+						<Text style={{ marginLeft: 30, color: Theme === "light" ? "black" : "white", fontSize: 26 }}>Change Mode</Text>
+						<View style={{flexDirection: "row"}}>
+							<View style={{marginTop:10}}>
+								<MaterialIcons
+								name={Theme === "light" ? "sunny" : "nights-stay"}
+								size={26}
+								color={Theme==="light"? "black":"white"}
+							/>
+							</View>
+							<Switch
+								style={{ marginLeft:10,marginRight: 40 }}
+								value={isDarkTheme}
+								onValueChange={this.toggleTheme}
+								trackColor={{
+									false: "#D1D5DB",
+									true: "#0F8A50",
+								}}
+							/>
+						</View>
 					</View>
 				</SafeAreaView>
 			);
 		}
 	}
 }
+
+const styles = StyleSheet.create({
+	header: {
+		flexDirection: 'row',
+		justifyContent: 'space-between',
+		alignItems: 'center',
+		paddingHorizontal: 20,
+		paddingTop: 15,
+		paddingBottom: 20
+	},
+	welcomeText: {
+		fontSize: 24,
+		fontWeight: 'bold',
+		color: '#333',
+	},
+	welcomeTextDark: {
+		fontSize: 24,
+		fontWeight: 'bold',
+		color: '#F5F5F5',
+	},
+	subWelcomeText: {
+		fontSize: 15,
+		color: '#888',
+		marginTop: 2,
+	},
+	subWelcomeTextDark: {
+		fontSize: 15,
+		color: '#A0A0A0',
+		marginTop: 2,
+	},
+})
