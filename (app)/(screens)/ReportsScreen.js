@@ -44,9 +44,11 @@ export default class ReportsScreen extends React.Component {
         else {
             return (
                 <SafeAreaView style={Theme === "light" ? styles.container : styles.containerDark}>
+                    <StatusBar backgroundColor={Theme === "light" ? "#FAFAFA" : "#050C1C"} />
+                    
                     <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
-                        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-                            <Text style={Theme === "light" ? styles.heading : styles.headingDark}>Reports Screen</Text>
+                        <View style={{ flex: 1, paddingLeft: 10,alignItems: 'flex-start', justifyContent: 'center' }}>
+                            <Text style={Theme === "light" ? styles.heading : styles.headingDark}>Reports </Text>
                         </View>
                     </ScrollView>
 
@@ -82,27 +84,23 @@ export default class ReportsScreen extends React.Component {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#FAFAFA',
-        marginTop: StatusBar.currentHeight
+        backgroundColor: '#FAFAFA'
     },
     containerDark: {
         flex: 1,
-        backgroundColor: '#050C1C',
-        marginTop: StatusBar.currentHeight
+        backgroundColor: '#050C1C'
     },
     scrollContent: {
         paddingHorizontal: 10,
         paddingBottom: 100, // Space for bottom navigation
     },
     heading: {
-        marginTop: StatusBar.currentHeight,
         fontSize: 32,
         fontWeight: "600",
         marginBottom: 20,
         color: "#111827",
     },
     headingDark: {
-        marginTop: StatusBar.currentHeight,
         fontSize: 32,
         fontWeight: "600",
         marginBottom: 20,
